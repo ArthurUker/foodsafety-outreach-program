@@ -1,0 +1,269 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5F3FF"/>
+      <stop offset="1" stop-color="#EFF6FF"/>
+    </linearGradient>
+    <!-- 卡片1渐变 -->
+    <linearGradient id="card1-grad" x1="72" y1="172" x2="382" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EDE9FE"/>
+      <stop offset="1" stop-color="#DDD6FE"/>
+    </linearGradient>
+    <!-- 卡片2渐变 -->
+    <linearGradient id="card2-grad" x1="402" y1="172" x2="712" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2FF"/>
+      <stop offset="1" stop-color="#C7D2FE"/>
+    </linearGradient>
+    <!-- 卡片3渐变 -->
+    <linearGradient id="card3-grad" x1="732" y1="172" x2="1042" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FEF9C3"/>
+      <stop offset="1" stop-color="#FDE68A"/>
+    </linearGradient>
+    <!-- 卡片4渐变 -->
+    <linearGradient id="card4-grad" x1="1062" y1="172" x2="1528" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DCFCE7"/>
+      <stop offset="1" stop-color="#BBF7D0"/>
+    </linearGradient>
+    <!-- 进度条渐变 -->
+    <linearGradient id="prog1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="prog2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="prog3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <!-- 考核卡片顶部渐变 -->
+    <linearGradient id="exam-header" x1="932" y1="330" x2="1528" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <!-- 得分圆环渐变 -->
+    <linearGradient id="score-ring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <style>
+      text { font-family: "PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif; }
+    </style>
+    <clipPath id="clip-exam"><rect x="932" y="330" width="596" height="360" rx="24"/></clipPath>
+    <clipPath id="clip-course"><rect x="72" y="330" width="840" height="360" rx="24"/></clipPath>
+    <clipPath id="clip-bottom"><rect x="72" y="718" width="1456" height="110" rx="24"/></clipPath>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1600" height="900" rx="36" fill="url(#bg4)"/>
+  <rect x="36" y="36" width="1528" height="828" rx="32" fill="#F8FAFC" stroke="#DDE7EF"
+        filter="drop-shadow(0 8px 24px rgba(109,40,217,0.06))"/>
+
+  <!-- ===== 顶部标题栏 ===== -->
+  <rect x="72" y="72" width="1456" height="72" rx="18" fill="white" stroke="#E2E8F0"/>
+  <!-- 左侧图标装饰 -->
+  <rect x="88" y="88" width="40" height="40" rx="12" fill="#EDE9FE"/>
+  <text x="108" y="108" text-anchor="middle" dominant-baseline="middle" font-size="22">🎓</text>
+  <!-- 标题 -->
+  <text x="142" y="108" dominant-baseline="middle"
+        font-size="30" fill="#0F172A" font-weight="700">培训考核工作台</text>
+  <!-- 右侧操作按钮 -->
+  <rect x="1270" y="88" width="120" height="40" rx="20" fill="#EDE9FE"/>
+  <text x="1330" y="108" text-anchor="middle" dominant-baseline="middle"
+        font-size="16" fill="#6D28D9" font-weight="600">新建培训</text>
+  <rect x="1404" y="88" width="108" height="40" rx="20" fill="#6D28D9"/>
+  <text x="1458" y="108" text-anchor="middle" dominant-baseline="middle"
+        font-size="16" fill="white" font-weight="600">导出报告</text>
+
+  <!-- ===== 四个统计卡片 ===== -->
+
+  <!-- 卡片1：本月培训计划 -->
+  <rect x="72" y="172" width="310" height="130" rx="22" fill="url(#card1-grad)"
+        filter="drop-shadow(0 4px 12px rgba(109,40,217,0.10))"/>
+  <!-- 装饰圆 -->
+  <circle cx="348" cy="178" r="48" fill="#C4B5FD" opacity="0.25"/>
+  <text x="108" y="214" dominant-baseline="middle" font-size="14" fill="#7C3AED" font-weight="600" letter-spacing="1">本月培训计划</text>
+  <text x="108" y="264" dominant-baseline="middle" font-size="52" fill="#5B21B6" font-weight="800">4</text>
+  <text x="158" y="264" dominant-baseline="middle" font-size="16" fill="#8B5CF6">项</text>
+  <rect x="200" y="248" width="60" height="22" rx="11" fill="#C4B5FD" opacity="0.6"/>
+  <text x="230" y="259" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#5B21B6" font-weight="700">进行中 2</text>
+
+  <!-- 卡片2：已完成课程 -->
+  <rect x="402" y="172" width="310" height="130" rx="22" fill="url(#card2-grad)"
+        filter="drop-shadow(0 4px 12px rgba(67,56,202,0.10))"/>
+  <circle cx="678" cy="178" r="48" fill="#A5B4FC" opacity="0.25"/>
+  <text x="438" y="214" dominant-baseline="middle" font-size="14" fill="#4338CA" font-weight="600" letter-spacing="1">已完成课程</text>
+  <text x="438" y="264" dominant-baseline="middle" font-size="52" fill="#3730A3" font-weight="800">18</text>
+  <text x="510" y="264" dominant-baseline="middle" font-size="16" fill="#6366F1">门</text>
+  <rect x="540" y="248" width="60" height="22" rx="11" fill="#A5B4FC" opacity="0.6"/>
+  <text x="570" y="259" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#3730A3" font-weight="700">本月 +3</text>
+
+  <!-- 卡片3：待参加考核 -->
+  <rect x="732" y="172" width="310" height="130" rx="22" fill="url(#card3-grad)"
+        filter="drop-shadow(0 4px 12px rgba(180,83,9,0.08))"/>
+  <circle cx="1008" cy="178" r="48" fill="#FCD34D" opacity="0.3"/>
+  <text x="768" y="214" dominant-baseline="middle" font-size="14" fill="#B45309" font-weight="600" letter-spacing="1">待参加考核</text>
+  <text x="768" y="264" dominant-baseline="middle" font-size="52" fill="#D97706" font-weight="800">7</text>
+  <text x="818" y="264" dominant-baseline="middle" font-size="16" fill="#F59E0B">人</text>
+  <rect x="848" y="248" width="72" height="22" rx="11" fill="#FDE68A" opacity="0.8"/>
+  <text x="884" y="259" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#92400E" font-weight="700">截止 3天后</text>
+
+  <!-- 卡片4：培训覆盖率 -->
+  <rect x="1062" y="172" width="466" height="130" rx="22" fill="url(#card4-grad)"
+        filter="drop-shadow(0 4px 12px rgba(22,163,74,0.08))"/>
+  <circle cx="1494" cy="178" r="60" fill="#6EE7B7" opacity="0.25"/>
+  <text x="1098" y="214" dominant-baseline="middle" font-size="14" fill="#166534" font-weight="600" letter-spacing="1">培训覆盖率</text>
+  <text x="1098" y="264" dominant-baseline="middle" font-size="52" fill="#16A34A" font-weight="800">96%</text>
+  <!-- 小进度条 -->
+  <rect x="1098" y="278" width="280" height="8" rx="4" fill="#A7F3D0"/>
+  <rect x="1098" y="278" width="269" height="8" rx="4" fill="#16A34A"/>
+  <text x="1390" y="282" dominant-baseline="middle" font-size="12" fill="#166534" font-weight="600">目标 100%</text>
+
+  <!-- ===== 课程学习列表 ===== -->
+  <rect x="72" y="330" width="840" height="360" rx="24" fill="white" stroke="#E2E8F0"
+        filter="drop-shadow(0 2px 8px rgba(15,23,42,0.05))"/>
+  <g clip-path="url(#clip-course)">
+    <!-- 标题区 -->
+    <rect x="72" y="330" width="840" height="56" rx="0" fill="#FAFAFA"/>
+    <rect x="72" y="330" width="840" height="24" rx="24" fill="#FAFAFA"/>
+    <text x="108" y="358" dominant-baseline="middle" font-size="20" fill="#0F172A" font-weight="700">课程学习列表</text>
+    <rect x="820" y="342" width="76" height="28" rx="14" fill="#EDE9FE"/>
+    <text x="858" y="356" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#6D28D9" font-weight="600">共 3 门</text>
+
+    <!-- 分隔线 -->
+    <line x1="72" y1="386" x2="912" y2="386" stroke="#F1F5F9" stroke-width="1.5"/>
+
+    <!-- 课程1：食品留样规范培训 -->
+    <rect x="88" y="396" width="808" height="80" rx="16" fill="#F8FAFC" stroke="#E2E8F0"/>
+    <!-- 左侧序号 -->
+    <rect x="100" y="414" width="32" height="32" rx="10" fill="#DCFCE7"/>
+    <text x="116" y="430" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#16A34A" font-weight="700">01</text>
+    <!-- 课程信息 -->
+    <text x="146" y="422" dominant-baseline="middle" font-size="18" fill="#0F172A" font-weight="600">食品留样规范培训</text>
+    <text x="146" y="444" dominant-baseline="middle" font-size="13" fill="#94A3B8">主讲：食品安全部 · 时长 45 分钟 · 必修</text>
+    <!-- 进度条 -->
+    <rect x="560" y="424" width="180" height="8" rx="4" fill="#E2E8F0"/>
+    <rect x="560" y="424" width="180" height="8" rx="4" fill="url(#prog3)"/>
+    <text x="750" y="428" dominant-baseline="middle" font-size="12" fill="#10B981" font-weight="600">  100%</text>
+    <!-- 状态标签 -->
+    <rect x="820" y="418" width="64" height="26" rx="13" fill="#DCFCE7"/>
+    <text x="852" y="431" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#166534" font-weight="700">已完成</text>
+
+    <!-- 课程2：餐具清洗消毒规范 -->
+    <rect x="88" y="490" width="808" height="80" rx="16" fill="#F8FAFC" stroke="#E2E8F0"/>
+    <rect x="100" y="508" width="32" height="32" rx="10" fill="#DBEAFE"/>
+    <text x="116" y="524" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#2563EB" font-weight="700">02</text>
+    <text x="146" y="516" dominant-baseline="middle" font-size="18" fill="#0F172A" font-weight="600">餐具清洗消毒规范</text>
+    <text x="146" y="538" dominant-baseline="middle" font-size="13" fill="#94A3B8">主讲：卫生管理部 · 时长 30 分钟 · 必修</text>
+    <rect x="560" y="518" width="180" height="8" rx="4" fill="#E2E8F0"/>
+    <rect x="560" y="518" width="108" height="8" rx="4" fill="url(#prog2)"/>
+    <text x="750" y="522" dominant-baseline="middle" font-size="12" fill="#3B82F6" font-weight="600">  60%</text>
+    <rect x="820" y="512" width="64" height="26" rx="13" fill="#DBEAFE"/>
+    <text x="852" y="525" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#1D4ED8" font-weight="700">学习中</text>
+
+    <!-- 课程3：后厨人员操作卫生要求 -->
+    <rect x="88" y="584" width="808" height="80" rx="16" fill="#F8FAFC" stroke="#E2E8F0"/>
+    <rect x="100" y="602" width="32" height="32" rx="10" fill="#FEF3C7"/>
+    <text x="116" y="618" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="#D97706" font-weight="700">03</text>
+    <text x="146" y="610" dominant-baseline="middle" font-size="18" fill="#0F172A" font-weight="600">后厨人员操作卫生要求</text>
+    <text x="146" y="632" dominant-baseline="middle" font-size="13" fill="#94A3B8">主讲：食品安全部 · 时长 60 分钟 · 必修</text>
+    <rect x="560" y="612" width="180" height="8" rx="4" fill="#E2E8F0"/>
+    <rect x="560" y="612" width="18" height="8" rx="4" fill="url(#prog1)" opacity="0.5"/>
+    <text x="750" y="616" dominant-baseline="middle" font-size="12" fill="#D97706" font-weight="600">  10%</text>
+    <rect x="820" y="606" width="64" height="26" rx="13" fill="#FEF3C7"/>
+    <text x="852" y="619" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#B45309" font-weight="700">待学习</text>
+  </g>
+
+  <!-- ===== 在线考核卡片 ===== -->
+  <rect x="932" y="330" width="596" height="360" rx="24" fill="white" stroke="#E2E8F0"
+        filter="drop-shadow(0 2px 8px rgba(15,23,42,0.05))"/>
+  <g clip-path="url(#clip-exam)">
+    <!-- 顶部渐变头部 -->
+    <rect x="932" y="330" width="596" height="110" fill="url(#exam-header)"/>
+    <rect x="932" y="330" width="596" height="24" rx="24" fill="url(#exam-header)"/>
+    <!-- 装饰圆 -->
+    <circle cx="1480" cy="340" r="70" fill="white" opacity="0.06"/>
+    <circle cx="1500" cy="390" r="40" fill="white" opacity="0.06"/>
+    <text x="968" y="368" dominant-baseline="middle" font-size="20" fill="white" font-weight="700">在线考核</text>
+    <rect x="1340" y="354" width="72" height="26" rx="13" fill="rgba(255,255,255,0.2)"/>
+    <text x="1376" y="367" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="white" font-weight="600">本月第 2 次</text>
+    <!-- 考核标题 -->
+    <text x="968" y="406" dominant-baseline="middle" font-size="18" fill="white" font-weight="600">食品安全基础知识测评</text>
+    <text x="968" y="428" dominant-baseline="middle" font-size="13" fill="rgba(255,255,255,0.7)">通过线：80 分 · 共 40 题 · 限时 60 分钟</text>
+
+    <!-- 得分展示区 -->
+    <rect x="948" y="454" width="564" height="130" rx="18" fill="#F8FAFC" stroke="#E2E8F0"/>
+    <!-- 圆形得分 -->
+    <circle cx="1030" cy="519" r="46" fill="none" stroke="#E2E8F0" stroke-width="8"/>
+    <circle cx="1030" cy="519" r="46" fill="none" stroke="url(#score-ring)" stroke-width="8"
+            stroke-dasharray="258" stroke-dashoffset="36"
+            stroke-linecap="round"
+            transform="rotate(-90 1030 519)"/>
+    <text x="1030" y="513" text-anchor="middle" dominant-baseline="middle" font-size="26" fill="#5B21B6" font-weight="800">86</text>
+    <text x="1030" y="533" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#94A3B8">当前成绩</text>
+    <!-- 得分详情 -->
+    <line x1="1094" y1="466" x2="1094" y2="572" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="1114" y="480" dominant-baseline="middle" font-size="13" fill="#64748B">正确题数</text>
+    <text x="1114" y="502" dominant-baseline="middle" font-size="22" fill="#0F172A" font-weight="700">34 <tspan font-size="13" fill="#94A3B8">/ 40 题</tspan></text>
+    <text x="1114" y="530" dominant-baseline="middle" font-size="13" fill="#64748B">用时</text>
+    <text x="1114" y="552" dominant-baseline="middle" font-size="22" fill="#0F172A" font-weight="700">42 <tspan font-size="13" fill="#94A3B8">分钟</tspan></text>
+    <!-- 通过标签 -->
+    <rect x="1360" y="494" width="72" height="50" rx="14" fill="#DCFCE7"/>
+    <text x="1396" y="514" text-anchor="middle" dominant-baseline="middle" font-size="22">✅</text>
+    <text x="1396" y="534" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#166534" font-weight="700">已通过</text>
+
+    <!-- 知识点掌握情况 -->
+    <text x="968" y="606" dominant-baseline="middle" font-size="15" fill="#475569" font-weight="600">知识点掌握情况</text>
+    <!-- 进度条1 -->
+    <text x="968" y="628" dominant-baseline="middle" font-size="13" fill="#64748B">食品储存</text>
+    <rect x="1050" y="622" width="300" height="8" rx="4" fill="#E2E8F0"/>
+    <rect x="1050" y="622" width="270" height="8" rx="4" fill="#8B5CF6"/>
+    <text x="1360" y="626" dominant-baseline="middle" font-size="13" fill="#6D28D9" font-weight="600">90%</text>
+    <!-- 进度条2 -->
+    <text x="968" y="652" dominant-baseline="middle" font-size="13" fill="#64748B">消毒规范</text>
+    <rect x="1050" y="646" width="300" height="8" rx="4" fill="#E2E8F0"/>
+    <rect x="1050" y="646" width="240" height="8" rx="4" fill="#6366F1"/>
+    <text x="1360" y="650" dominant-baseline="middle" font-size="13" fill="#4338CA" font-weight="600">80%</text>
+    <!-- 进度条3 -->
+    <text x="968" y="676" dominant-baseline="middle" font-size="13" fill="#64748B">应急处理</text>
+    <rect x="1050" y="670" width="300" height="8" rx="4" fill="#E2E8F0"/>
+    <rect x="1050" y="670" width="195" height="8" rx="4" fill="#A78BFA"/>
+    <text x="1360" y="674" dominant-baseline="middle" font-size="13" fill="#7C3AED" font-weight="600">65%</text>
+  </g>
+
+  <!-- ===== 底部：培训进度总览 ===== -->
+  <rect x="72" y="718" width="1456" height="110" rx="24" fill="white" stroke="#E2E8F0"/>
+  <g clip-path="url(#clip-bottom)">
+    <text x="108" y="760" dominant-baseline="middle" font-size="18" fill="#0F172A" font-weight="700">本月培训进度总览</text>
+    <line x1="272" y1="730" x2="272" y2="816" stroke="#E2E8F0" stroke-width="1.5"/>
+
+    <!-- 总体进度条 -->
+    <text x="292" y="752" dominant-baseline="middle" font-size="13" fill="#64748B">整体完成度</text>
+    <rect x="292" y="762" width="900" height="14" rx="7" fill="#E2E8F0"/>
+    <rect x="292" y="762" width="756" height="14" rx="7" fill="url(#prog1)"/>
+    <!-- 节点标记 -->
+    <circle cx="516" cy="769" r="7" fill="white" stroke="#8B5CF6" stroke-width="2"/>
+    <text x="516" y="752" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#6D28D9">25%</text>
+    <circle cx="742" cy="769" r="7" fill="white" stroke="#8B5CF6" stroke-width="2"/>
+    <text x="742" y="752" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#6D28D9">50%</text>
+    <circle cx="968" cy="769" r="7" fill="white" stroke="#8B5CF6" stroke-width="2"/>
+    <text x="968" y="752" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#6D28D9">75%</text>
+    <text x="1202" y="769" dominant-baseline="middle" font-size="16" fill="#6D28D9" font-weight="700">84%</text>
+
+    <!-- 右侧操作按钮 -->
+    <rect x="1280" y="738" width="108" height="40" rx="20" fill="#EDE9FE"/>
+    <text x="1334" y="758" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="#6D28D9" font-weight="600">查看详情</text>
+    <rect x="1404" y="738" width="108" height="40" rx="20" fill="#6D28D9"/>
+    <text x="1458" y="758" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="white" font-weight="600">开始考核</text>
+
+    <!-- 底部小标签 -->
+    <text x="292" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">已完成 18 门</text>
+    <text x="430" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">·</text>
+    <text x="446" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">进行中 3 门</text>
+    <text x="572" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">·</text>
+    <text x="588" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">未开始 1 门</text>
+    <text x="714" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">·</text>
+    <text x="730" y="800" dominant-baseline="middle" font-size="12" fill="#94A3B8">预计完成日期：2026-03-31</text>
+  </g>
+</svg>

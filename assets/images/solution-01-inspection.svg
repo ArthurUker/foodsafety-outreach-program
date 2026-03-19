@@ -1,0 +1,319 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E9FFFB"/>
+      <stop offset="1" stop-color="#EEF5FF"/>
+    </linearGradient>
+
+    <!-- 相机场景渐变：天花板到地面 -->
+    <linearGradient id="scene-bg" x1="502" y1="582" x2="502" y2="740" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0C4A6E"/>
+      <stop offset="45%" stop-color="#075985"/>
+      <stop offset="100%" stop-color="#0C3D5A"/>
+    </linearGradient>
+
+    <!-- 操作台渐变 -->
+    <linearGradient id="counter-grad" x1="384" y1="700" x2="384" y2="740" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E4D6B"/>
+      <stop offset="100%" stop-color="#0F2D40"/>
+    </linearGradient>
+
+    <!-- 灯光光晕 -->
+    <radialGradient id="light1" cx="440" cy="600" r="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FEF9C3" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#FEF9C3" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="light2" cx="565" cy="600" r="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FEF9C3" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#FEF9C3" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 人物皮肤渐变 -->
+    <radialGradient id="face1" cx="452" cy="648" r="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </radialGradient>
+    <radialGradient id="face2" cx="548" cy="645" r="11" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </radialGradient>
+
+    <!-- 卡片圆角裁剪 -->
+    <clipPath id="clip-camera-card">
+      <rect x="384" y="582" width="236" height="158" rx="16"/>
+    </clipPath>
+    <clipPath id="clip-nav"><rect x="72" y="72" width="238" height="756"/></clipPath>
+    <clipPath id="clip-topbar"><rect x="352" y="92" width="880" height="68"/></clipPath>
+    <clipPath id="clip-task-list"><rect x="352" y="196" width="508" height="286"/></clipPath>
+    <clipPath id="clip-checklist"><rect x="884" y="196" width="616" height="286"/></clipPath>
+    <clipPath id="clip-bottom"><rect x="352" y="518" width="1148" height="254"/></clipPath>
+    <clipPath id="clip-info"><rect x="928" y="582" width="536" height="158"/></clipPath>
+    <clipPath id="clip-desc"><rect x="644" y="582" width="252" height="158"/></clipPath>
+
+    <style>
+      text { font-family: "PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif; }
+    </style>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1600" height="900" rx="36" fill="url(#bg)"/>
+  <rect x="36" y="36" width="1528" height="828" rx="32" fill="#F8FAFC" stroke="#DCE6F0"
+        filter="drop-shadow(0 8px 24px rgba(15,23,42,0.07))"/>
+
+  <!-- ===== 左侧导航 ===== -->
+  <rect x="72" y="72" width="238" height="756" rx="24" fill="#0F172A"/>
+  <rect x="90" y="94" width="162" height="44" rx="22" fill="#D5FAF5"/>
+  <text clip-path="url(#clip-nav)" x="171" y="116" text-anchor="middle" dominant-baseline="middle"
+        font-size="13" fill="#0F766E" font-weight="700">数字化巡检模块</text>
+  <text clip-path="url(#clip-nav)" x="110" y="186" dominant-baseline="middle"
+        font-size="22" fill="#E2E8F0" font-weight="700">数据看板</text>
+  <rect x="90" y="208" width="192" height="52" rx="14" fill="#1BC6BE"/>
+  <text clip-path="url(#clip-nav)" x="186" y="234" text-anchor="middle" dominant-baseline="middle"
+        font-size="22" fill="#FFFFFF" font-weight="700">巡检任务</text>
+  <text clip-path="url(#clip-nav)" x="110" y="318" dominant-baseline="middle"
+        font-size="21" fill="#94A3B8" font-weight="500">风险预警</text>
+  <text clip-path="url(#clip-nav)" x="110" y="376" dominant-baseline="middle"
+        font-size="21" fill="#94A3B8" font-weight="500">整改台账</text>
+  <text clip-path="url(#clip-nav)" x="110" y="434" dominant-baseline="middle"
+        font-size="21" fill="#94A3B8" font-weight="500">数据分析</text>
+
+  <!-- ===== 顶部标题栏 ===== -->
+  <rect x="352" y="92" width="1148" height="68" rx="16" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text clip-path="url(#clip-topbar)" x="390" y="126" dominant-baseline="middle"
+        font-size="30" fill="#0F172A" font-weight="700">日常巡检任务</text>
+  <rect x="1268" y="110" width="90" height="36" rx="18" fill="#DCFCE7"/>
+  <text x="1313" y="128" text-anchor="middle" dominant-baseline="middle"
+        font-size="18" fill="#166534" font-weight="700">进行中</text>
+  <rect x="1376" y="110" width="80" height="36" rx="18" fill="#CCFBF1"/>
+  <text x="1416" y="128" text-anchor="middle" dominant-baseline="middle"
+        font-size="18" fill="#0F766E" font-weight="700">导出</text>
+
+  <!-- ===== 巡检任务列表卡片 ===== -->
+  <rect x="352" y="196" width="508" height="286" rx="20" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text clip-path="url(#clip-task-list)" x="388" y="236" dominant-baseline="middle"
+        font-size="22" fill="#0F172A" font-weight="700">巡检任务列表</text>
+  <rect x="380" y="260" width="464" height="50" rx="12" fill="#F1F5F9"/>
+  <text x="402" y="285" dominant-baseline="middle" font-size="18" fill="#1E293B" font-weight="600">食堂后厨环境检查</text>
+  <rect x="718" y="272" width="80" height="26" rx="13" fill="#DBEAFE"/>
+  <text x="758" y="285" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#2563EB" font-weight="700">已分派</text>
+  <rect x="380" y="328" width="464" height="50" rx="12" fill="#F1F5F9"/>
+  <text x="402" y="353" dominant-baseline="middle" font-size="18" fill="#1E293B" font-weight="600">餐具消毒记录核查</text>
+  <rect x="718" y="340" width="80" height="26" rx="13" fill="#DCFCE7"/>
+  <text x="758" y="353" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#16A34A" font-weight="700">已完成</text>
+  <rect x="380" y="396" width="464" height="50" rx="12" fill="#F1F5F9"/>
+  <text x="402" y="421" dominant-baseline="middle" font-size="18" fill="#1E293B" font-weight="600">食材留样检查</text>
+  <rect x="718" y="408" width="80" height="26" rx="13" fill="#FEF3C7"/>
+  <text x="758" y="421" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#D97706" font-weight="700">待处理</text>
+
+  <!-- ===== 检查清单预览卡片 ===== -->
+  <rect x="884" y="196" width="616" height="286" rx="20" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text clip-path="url(#clip-checklist)" x="920" y="236" dominant-baseline="middle"
+        font-size="22" fill="#0F172A" font-weight="700">检查清单预览</text>
+  <circle cx="940" cy="284" r="9" fill="#14B8A6"/>
+  <text x="962" y="284" dominant-baseline="middle" font-size="18" fill="#334155" font-weight="600">从业人员晨检记录</text>
+  <circle cx="940" cy="336" r="9" fill="#14B8A6"/>
+  <text x="962" y="336" dominant-baseline="middle" font-size="18" fill="#334155" font-weight="600">加工操作规范核查</text>
+  <circle cx="940" cy="388" r="9" fill="#14B8A6"/>
+  <text x="962" y="388" dominant-baseline="middle" font-size="18" fill="#334155" font-weight="600">冷藏设备温度检查</text>
+  <circle cx="940" cy="440" r="9" fill="#CBD5E1"/>
+  <text x="962" y="440" dominant-baseline="middle" font-size="18" fill="#94A3B8" font-weight="600">食品留样管理</text>
+
+  <!-- ===== 底部大卡片 ===== -->
+  <rect x="352" y="518" width="1148" height="254" rx="20" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <text clip-path="url(#clip-bottom)" x="388" y="556" dominant-baseline="middle"
+        font-size="22" fill="#0F172A" font-weight="700">现场取证与问题记录</text>
+
+  <!-- ============================================================ -->
+  <!-- ===== 相机取景框卡片（精美版）===== -->
+  <!-- ============================================================ -->
+
+  <!-- 卡片外壳：深色机身 -->
+  <rect x="384" y="582" width="236" height="158" rx="16"
+        fill="#1C2B3A" filter="drop-shadow(0 4px 12px rgba(0,0,0,0.3))"/>
+
+  <!-- 场景画面（全部裁剪在卡片内） -->
+  <g clip-path="url(#clip-camera-card)">
+
+    <!-- 场景背景 -->
+    <rect x="384" y="582" width="236" height="158" fill="url(#scene-bg)"/>
+
+    <!-- 天花板灯带 -->
+    <rect x="384" y="582" width="236" height="4" fill="#7DD3FC" opacity="0.3"/>
+
+    <!-- 吊灯1 -->
+    <rect x="432" y="582" width="4" height="14" fill="#94A3B8" opacity="0.6"/>
+    <ellipse cx="434" cy="598" rx="10" ry="6" fill="#FEF08A" opacity="0.85"/>
+    <ellipse cx="434" cy="598" rx="6" ry="3" fill="#FEFCE8"/>
+    <rect x="384" y="582" width="236" height="158" fill="url(#light1)" opacity="0.7"/>
+
+    <!-- 吊灯2 -->
+    <rect x="562" y="582" width="4" height="14" fill="#94A3B8" opacity="0.6"/>
+    <ellipse cx="564" cy="598" rx="10" ry="6" fill="#FEF08A" opacity="0.85"/>
+    <ellipse cx="564" cy="598" rx="6" ry="3" fill="#FEFCE8"/>
+    <rect x="384" y="582" width="236" height="158" fill="url(#light2)" opacity="0.7"/>
+
+    <!-- 背景墙瓷砖纹理 -->
+    <line x1="384" y1="614" x2="620" y2="614" stroke="#0E5A7A" stroke-width="0.8" opacity="0.5"/>
+    <line x1="384" y1="628" x2="620" y2="628" stroke="#0E5A7A" stroke-width="0.8" opacity="0.5"/>
+    <line x1="384" y1="642" x2="620" y2="642" stroke="#0E5A7A" stroke-width="0.8" opacity="0.5"/>
+    <line x1="420" y1="582" x2="420" y2="660" stroke="#0E5A7A" stroke-width="0.8" opacity="0.4"/>
+    <line x1="456" y1="582" x2="456" y2="660" stroke="#0E5A7A" stroke-width="0.8" opacity="0.4"/>
+    <line x1="492" y1="582" x2="492" y2="660" stroke="#0E5A7A" stroke-width="0.8" opacity="0.4"/>
+    <line x1="528" y1="582" x2="528" y2="660" stroke="#0E5A7A" stroke-width="0.8" opacity="0.4"/>
+    <line x1="564" y1="582" x2="564" y2="660" stroke="#0E5A7A" stroke-width="0.8" opacity="0.4"/>
+    <line x1="600" y1="582" x2="600" y2="660" stroke="#0E5A7A" stroke-width="0.8" opacity="0.4"/>
+
+    <!-- 操作台台面 -->
+    <rect x="384" y="696" width="236" height="44" fill="url(#counter-grad)"/>
+    <rect x="384" y="696" width="236" height="3" fill="#38BDF8" opacity="0.25"/>
+
+    <!-- 台面上的器具：锅 -->
+    <ellipse cx="450" cy="696" rx="28" ry="8" fill="#1E3A4A"/>
+    <ellipse cx="450" cy="692" rx="28" ry="8" fill="#1E4D6B"/>
+    <ellipse cx="450" cy="690" rx="24" ry="6" fill="#155E75" opacity="0.8"/>
+    <!-- 锅盖把手 -->
+    <rect x="446" y="682" width="8" height="8" rx="3" fill="#64748B"/>
+
+    <!-- 台面上的器具：盘子 -->
+    <ellipse cx="560" cy="696" rx="22" ry="6" fill="#1E3A4A"/>
+    <ellipse cx="560" cy="693" rx="22" ry="6" fill="#E2E8F0" opacity="0.15"/>
+    <ellipse cx="560" cy="692" rx="16" ry="4" fill="#CBD5E1" opacity="0.1"/>
+
+    <!-- 人物1：厨师（左侧，戴厨师帽） -->
+    <!-- 帽子 -->
+    <rect x="440" y="648" width="24" height="16" rx="3" fill="#F1F5F9" opacity="0.9"/>
+    <rect x="436" y="660" width="32" height="5" rx="2" fill="#E2E8F0" opacity="0.9"/>
+    <!-- 脸 -->
+    <ellipse cx="452" cy="672" rx="12" ry="12" fill="url(#face1)"/>
+    <!-- 口罩 -->
+    <rect x="442" y="675" width="20" height="10" rx="4" fill="#BAE6FD" opacity="0.9"/>
+    <!-- 身体（白色厨师服） -->
+    <rect x="432" y="684" width="40" height="28" rx="6" fill="#F1F5F9" opacity="0.85"/>
+    <!-- 衣服纽扣 -->
+    <circle cx="452" cy="690" r="2" fill="#CBD5E1"/>
+    <circle cx="452" cy="698" r="2" fill="#CBD5E1"/>
+    <!-- 手臂 -->
+    <rect x="420" y="686" width="12" height="20" rx="5" fill="#F1F5F9" opacity="0.7"/>
+    <rect x="472" y="686" width="12" height="20" rx="5" fill="#F1F5F9" opacity="0.7"/>
+
+    <!-- 人物2：检查员（右侧，戴安全帽） -->
+    <!-- 安全帽 -->
+    <ellipse cx="548" cy="656" rx="16" ry="8" fill="#FBBF24" opacity="0.95"/>
+    <rect x="532" y="660" width="32" height="5" rx="2" fill="#F59E0B" opacity="0.9"/>
+    <!-- 脸 -->
+    <ellipse cx="548" cy="672" rx="11" ry="11" fill="url(#face2)"/>
+    <!-- 口罩 -->
+    <rect x="539" y="675" width="18" height="9" rx="4" fill="#BAE6FD" opacity="0.9"/>
+    <!-- 身体（蓝色工作服） -->
+    <rect x="530" y="683" width="36" height="28" rx="6" fill="#1D4ED8" opacity="0.75"/>
+    <!-- 手臂 -->
+    <rect x="519" y="685" width="11" height="18" rx="5" fill="#1D4ED8" opacity="0.6"/>
+    <rect x="566" y="685" width="11" height="18" rx="5" fill="#1D4ED8" opacity="0.6"/>
+    <!-- 手持平板/记录本 -->
+    <rect x="566" y="688" width="18" height="24" rx="3" fill="#E2E8F0" opacity="0.9"/>
+    <rect x="568" y="691" width="14" height="3" rx="1" fill="#94A3B8"/>
+    <rect x="568" y="696" width="10" height="3" rx="1" fill="#94A3B8"/>
+    <rect x="568" y="701" width="12" height="3" rx="1" fill="#94A3B8"/>
+
+    <!-- ===== 相机 UI 叠加层 ===== -->
+
+    <!-- 顶部 HUD 状态栏 -->
+    <rect x="384" y="582" width="236" height="20" fill="rgba(0,0,0,0.45)"/>
+    <!-- REC 红点 -->
+    <circle cx="396" cy="592" r="4" fill="#EF4444"/>
+    <circle cx="396" cy="592" r="2" fill="#FCA5A5"/>
+    <text x="404" y="592" dominant-baseline="middle" font-size="8" fill="white" font-weight="700" letter-spacing="1">REC</text>
+    <!-- 时间戳 -->
+    <text x="502" y="592" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#E2E8F0">2026-03-19  10:24:37</text>
+    <!-- 电量图标 -->
+    <rect x="596" y="587" width="18" height="10" rx="2" fill="none" stroke="white" stroke-width="1.2"/>
+    <rect x="614" y="590" width="2" height="4" rx="1" fill="white"/>
+    <rect x="597.5" y="588.5" width="13" height="7" rx="1" fill="#4ADE80"/>
+
+    <!-- 四角对焦标记（精致版） -->
+    <!-- 左上 -->
+    <path d="M402 604 L402 596 L410 596" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 右上 -->
+    <path d="M602 604 L602 596 L594 596" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 左下 -->
+    <path d="M402 730 L402 738 L410 738" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 右下 -->
+    <path d="M602 730 L602 738 L594 738" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+    <!-- 中心人脸对焦框（绿色，对准人物1） -->
+    <rect x="436" y="644" width="34" height="42" rx="3" fill="none"
+          stroke="#4ADE80" stroke-width="1.8" stroke-dasharray="0"/>
+    <!-- 对焦框四角加粗 -->
+    <path d="M436 654 L436 644 L446 644" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M470 654 L470 644 L460 644" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M436 676 L436 686 L446 686" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M470 676 L470 686 L460 686" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 对焦标签 -->
+    <rect x="436" y="688" width="34" height="12" rx="3" fill="#4ADE80" opacity="0.85"/>
+    <text x="453" y="694" text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#052E16" font-weight="700">AF ✓</text>
+
+    <!-- 右侧参数显示 -->
+    <text x="614" y="616" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#FCD34D" font-weight="600">1/60</text>
+    <text x="614" y="628" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#FCD34D" font-weight="600">F2.8</text>
+    <text x="614" y="640" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#FCD34D" font-weight="600">ISO 800</text>
+
+    <!-- 网格辅助线（三分法，细而半透明） -->
+    <line x1="462" y1="602" x2="462" y2="738" stroke="white" stroke-width="0.5" opacity="0.15"/>
+    <line x1="542" y1="602" x2="542" y2="738" stroke="white" stroke-width="0.5" opacity="0.15"/>
+    <line x1="384" y1="649" x2="620" y2="649" stroke="white" stroke-width="0.5" opacity="0.15"/>
+    <line x1="384" y1="695" x2="620" y2="695" stroke="white" stroke-width="0.5" opacity="0.15"/>
+
+    <!-- 底部工具栏 -->
+    <rect x="384" y="726" width="236" height="14" fill="rgba(0,0,0,0.5)"/>
+    <!-- 缩略图预览框 -->
+    <rect x="388" y="728" width="16" height="10" rx="2" fill="#475569"/>
+    <rect x="389" y="729" width="14" height="8" rx="1" fill="#0369A1" opacity="0.7"/>
+    <!-- 快门按钮 -->
+    <circle cx="502" cy="733" r="7" fill="none" stroke="white" stroke-width="1.5"/>
+    <circle cx="502" cy="733" r="4.5" fill="white"/>
+    <!-- 切换按钮 -->
+    <circle cx="610" cy="733" r="5" fill="none" stroke="white" stroke-width="1.2"/>
+    <path d="M607 733 Q610 729 613 733" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M607 733 Q610 737 613 733" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+  </g>
+
+  <!-- 卡片外框描边 -->
+  <rect x="384" y="582" width="236" height="158" rx="16" fill="none"
+        stroke="#334155" stroke-width="2"/>
+
+  <!-- 标签文字（卡片外下方） -->
+  <text x="502" y="756" text-anchor="middle" dominant-baseline="middle"
+        font-size="15" fill="#166534" font-weight="700">现场拍照上传</text>
+
+  <!-- ===== 问题描述记录卡片 ===== -->
+  <rect x="644" y="582" width="252" height="158" rx="16" fill="#F0F9FF"/>
+  <g clip-path="url(#clip-desc)">
+    <rect x="644" y="582" width="252" height="30" rx="0" fill="#BFDBFE" opacity="0.5"/>
+    <rect x="644" y="582" width="252" height="16" rx="16" fill="#BFDBFE" opacity="0.5"/>
+    <text x="770" y="597" text-anchor="middle" dominant-baseline="middle"
+          font-size="12" fill="#1E40AF" font-weight="700">问题描述记录</text>
+    <text x="660" y="626" dominant-baseline="middle" font-size="11" fill="#64748B" font-weight="600">问题类型</text>
+    <rect x="660" y="634" width="220" height="20" rx="6" fill="#DBEAFE"/>
+    <text x="670" y="644" dominant-baseline="middle" font-size="11" fill="#2563EB">食材卫生不达标</text>
+    <text x="660" y="666" dominant-baseline="middle" font-size="11" fill="#64748B" font-weight="600">详细描述</text>
+    <rect x="660" y="674" width="220" height="36" rx="6" fill="white" stroke="#BFDBFE"/>
+    <rect x="668" y="681" width="160" height="7" rx="3" fill="#93C5FD" opacity="0.8"/>
+    <rect x="668" y="694" width="120" height="7" rx="3" fill="#BFDBFE" opacity="0.8"/>
+    <rect x="660" y="718" width="52" height="18" rx="9" fill="#FEE2E2"/>
+    <text x="686" y="727" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#DC2626" font-weight="700">高风险</text>
+    <rect x="720" y="718" width="52" height="18" rx="9" fill="#FEF3C7"/>
+    <text x="746" y="727" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#D97706" font-weight="700">待整改</text>
+    <rect x="790" y="718" width="80" height="18" rx="9" fill="#2563EB"/>
+    <text x="830" y="727" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="white" font-weight="700">提交记录</text>
+  </g>
+
+  <!-- ===== 信息卡片 ===== -->
+  <rect x="928" y="582" width="536" height="158" rx="16" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text clip-path="url(#clip-info)" x="958" y="626" dominant-baseline="middle"
+        font-size="18" fill="#1E293B" font-weight="600">责任派发：后勤主任 / 食堂负责人</text>
+  <text clip-path="url(#clip-info)" x="958" y="666" dominant-baseline="middle"
+        font-size="17" fill="#475569" font-weight="500">整改期限：2026-03-25</text>
+  <text clip-path="url(#clip-info)" x="958" y="702" dominant-baseline="middle"
+        font-size="17" fill="#475569" font-weight="500">状态：待复核</text>
+</svg>

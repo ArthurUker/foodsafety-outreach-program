@@ -1,0 +1,271 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFEFF"/>
+      <stop offset="1" stop-color="#EFF6FF"/>
+    </linearGradient>
+    <linearGradient id="c1g" x1="72" y1="172" x2="382" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0F2FE"/><stop offset="1" stop-color="#BAE6FD"/>
+    </linearGradient>
+    <linearGradient id="c2g" x1="402" y1="172" x2="712" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FEF2F2"/><stop offset="1" stop-color="#FECACA"/>
+    </linearGradient>
+    <linearGradient id="c3g" x1="732" y1="172" x2="1042" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F0FDF4"/><stop offset="1" stop-color="#BBF7D0"/>
+    </linearGradient>
+    <linearGradient id="c4g" x1="1062" y1="172" x2="1528" y2="302" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ECFDF5"/><stop offset="1" stop-color="#A7F3D0"/>
+    </linearGradient>
+    <linearGradient id="area-teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F766E" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0F766E" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="area-red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EF4444" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="bar-teal" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#2DD4BF"/><stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+    <linearGradient id="bar-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#60A5FA"/><stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="bar-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FCD34D"/><stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+    <linearGradient id="bar-red" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FCA5A5"/><stop offset="1" stop-color="#DC2626"/>
+    </linearGradient>
+    <linearGradient id="hd-g" x1="72" y1="72" x2="1528" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/><stop offset="1" stop-color="#F0FDFA"/>
+    </linearGradient>
+    <style>
+      text { font-family: "PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif; }
+    </style>
+    <clipPath id="clip-chart"><rect x="72" y="330" width="840" height="310" rx="24"/></clipPath>
+    <clipPath id="clip-bar"><rect x="932" y="330" width="596" height="310" rx="24"/></clipPath>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1600" height="900" rx="36" fill="url(#bg6)"/>
+  <rect x="36" y="36" width="1528" height="828" rx="32" fill="#F8FAFC" stroke="#DDE7EF"
+        filter="drop-shadow(0 8px 24px rgba(15,23,42,0.06))"/>
+
+  <!-- ===== 顶部标题栏 ===== -->
+  <rect x="72" y="72" width="1456" height="72" rx="18" fill="url(#hd-g)" stroke="#E2E8F0"/>
+  <!-- 左侧图标 -->
+  <rect x="88" y="88" width="40" height="40" rx="12" fill="#CCFBF1"/>
+  <text x="108" y="108" text-anchor="middle" dominant-baseline="middle" font-size="22">📊</text>
+  <!-- 标题 -->
+  <text x="142" y="108" dominant-baseline="middle"
+        font-size="30" fill="#0F172A" font-weight="700">食品安全数据分析看板</text>
+  <!-- 时间标签：移至标题右侧，x=460 避开标题文字 -->
+  <rect x="462" y="90" width="130" height="28" rx="14" fill="#CCFBF1"/>
+  <text x="527" y="104" text-anchor="middle" dominant-baseline="middle"
+        font-size="12" fill="#0F766E" font-weight="600">2026年3月 · 实时</text>
+  <!-- 右侧按钮 -->
+  <rect x="1270" y="88" width="108" height="40" rx="20" fill="#CCFBF1"/>
+  <text x="1324" y="108" text-anchor="middle" dominant-baseline="middle"
+        font-size="15" fill="#0F766E" font-weight="600">刷新数据</text>
+  <rect x="1392" y="88" width="120" height="40" rx="20" fill="#0F766E"/>
+  <text x="1452" y="108" text-anchor="middle" dominant-baseline="middle"
+        font-size="15" fill="white" font-weight="600">导出报告</text>
+
+  <!-- ===== 四个统计卡片 ===== -->
+  <!-- 卡片1：巡检总次数 -->
+  <rect x="72" y="172" width="310" height="130" rx="22" fill="url(#c1g)"
+        filter="drop-shadow(0 4px 12px rgba(3,105,161,0.10))"/>
+  <circle cx="348" cy="178" r="50" fill="#7DD3FC" opacity="0.2"/>
+  <text x="108" y="210" dominant-baseline="middle" font-size="13" fill="#0369A1" font-weight="600" letter-spacing="1">巡检总次数</text>
+  <text x="108" y="262" dominant-baseline="middle" font-size="52" fill="#0284C7" font-weight="800">128</text>
+  <text x="188" y="262" dominant-baseline="middle" font-size="15" fill="#38BDF8">次</text>
+  <rect x="210" y="246" width="72" height="22" rx="11" fill="#BAE6FD" opacity="0.7"/>
+  <text x="246" y="257" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#0369A1" font-weight="600">↑ 本月+12</text>
+
+  <!-- 卡片2：异常问题数 -->
+  <rect x="402" y="172" width="310" height="130" rx="22" fill="url(#c2g)"
+        filter="drop-shadow(0 4px 12px rgba(185,28,28,0.08))"/>
+  <circle cx="678" cy="178" r="50" fill="#FCA5A5" opacity="0.2"/>
+  <text x="438" y="210" dominant-baseline="middle" font-size="13" fill="#B91C1C" font-weight="600" letter-spacing="1">异常问题数</text>
+  <text x="438" y="262" dominant-baseline="middle" font-size="52" fill="#DC2626" font-weight="800">23</text>
+  <text x="498" y="262" dominant-baseline="middle" font-size="15" fill="#F87171">项</text>
+  <rect x="526" y="246" width="72" height="22" rx="11" fill="#FECACA" opacity="0.7"/>
+  <text x="562" y="257" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#B91C1C" font-weight="600">高风险 3 项</text>
+
+  <!-- 卡片3：培训完成率 -->
+  <rect x="732" y="172" width="310" height="130" rx="22" fill="url(#c3g)"
+        filter="drop-shadow(0 4px 12px rgba(21,128,61,0.08))"/>
+  <circle cx="1008" cy="178" r="50" fill="#86EFAC" opacity="0.2"/>
+  <text x="768" y="210" dominant-baseline="middle" font-size="13" fill="#15803D" font-weight="600" letter-spacing="1">培训完成率</text>
+  <text x="768" y="262" dominant-baseline="middle" font-size="52" fill="#16A34A" font-weight="800">94%</text>
+  <rect x="768" y="276" width="220" height="8" rx="4" fill="#BBF7D0"/>
+  <rect x="768" y="276" width="207" height="8" rx="4" fill="#16A34A"/>
+  <text x="998" y="280" dominant-baseline="middle" font-size="12" fill="#15803D" font-weight="600"> 目标95%</text>
+
+  <!-- 卡片4：整改完成率 -->
+  <rect x="1062" y="172" width="466" height="130" rx="22" fill="url(#c4g)"
+        filter="drop-shadow(0 4px 12px rgba(22,163,74,0.08))"/>
+  <circle cx="1494" cy="178" r="60" fill="#6EE7B7" opacity="0.2"/>
+  <text x="1098" y="210" dominant-baseline="middle" font-size="13" fill="#166534" font-weight="600" letter-spacing="1">整改完成率</text>
+  <text x="1098" y="262" dominant-baseline="middle" font-size="52" fill="#22C55E" font-weight="800">89%</text>
+  <rect x="1098" y="276" width="380" height="8" rx="4" fill="#A7F3D0"/>
+  <rect x="1098" y="276" width="338" height="8" rx="4" fill="#22C55E"/>
+  <text x="1448" y="280" dominant-baseline="middle" font-size="12" fill="#166534" font-weight="600"> 目标90%</text>
+
+  <!-- ===== 左侧：月度巡检与异常趋势折线图 ===== -->
+  <rect x="72" y="330" width="840" height="310" rx="24" fill="white" stroke="#E2E8F0"
+        filter="drop-shadow(0 2px 8px rgba(15,23,42,0.04))"/>
+  <g clip-path="url(#clip-chart)">
+    <text x="108" y="362" dominant-baseline="middle" font-size="20" fill="#0F172A" font-weight="700">月度巡检与异常趋势</text>
+    <rect x="680" y="350" width="12" height="12" rx="3" fill="#0F766E"/>
+    <text x="698" y="356" dominant-baseline="middle" font-size="13" fill="#475569">巡检次数</text>
+    <rect x="790" y="350" width="12" height="12" rx="3" fill="#EF4444"/>
+    <text x="808" y="356" dominant-baseline="middle" font-size="13" fill="#475569">异常数</text>
+    <line x1="148" y1="390" x2="888" y2="390" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="420" x2="888" y2="420" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="450" x2="888" y2="450" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="480" x2="888" y2="480" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="510" x2="888" y2="510" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="540" x2="888" y2="540" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="570" x2="888" y2="570" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="148" y1="580" x2="888" y2="580" stroke="#CBD5E1" stroke-width="2"/>
+    <line x1="148" y1="385" x2="148" y2="580" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="138" y="580" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">0</text>
+    <text x="138" y="540" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">5</text>
+    <text x="138" y="500" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">10</text>
+    <text x="138" y="460" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">15</text>
+    <text x="138" y="420" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">20</text>
+    <text x="190" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">1月</text>
+    <text x="283" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">2月</text>
+    <text x="376" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">3月</text>
+    <text x="469" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">4月</text>
+    <text x="562" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">5月</text>
+    <text x="655" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">6月</text>
+    <text x="748" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">7月</text>
+    <text x="841" y="596" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94A3B8">8月</text>
+    <polygon points="190,510 283,490 376,470 469,445 562,430 655,410 748,400 841,385 841,580 190,580"
+             fill="url(#area-teal)"/>
+    <polyline points="190,510 283,490 376,470 469,445 562,430 655,410 748,400 841,385"
+              fill="none" stroke="#0F766E" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="190" cy="510" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="283" cy="490" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="376" cy="470" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="469" cy="445" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="562" cy="430" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="655" cy="410" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="748" cy="400" r="5" fill="white" stroke="#0F766E" stroke-width="2.5"/>
+    <circle cx="841" cy="385" r="8" fill="#0F766E"/>
+    <circle cx="841" cy="385" r="4" fill="white"/>
+    <rect x="808" y="366" width="66" height="20" rx="10" fill="#0F766E"/>
+    <text x="841" y="376" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="white" font-weight="700">128次</text>
+    <polygon points="190,548 283,540 376,530 469,518 562,508 655,492 748,502 841,472 841,580 190,580"
+             fill="url(#area-red)"/>
+    <polyline points="190,548 283,540 376,530 469,518 562,508 655,492 748,502 841,472"
+              fill="none" stroke="#EF4444" stroke-width="3.5"
+              stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 4"/>
+    <circle cx="190" cy="548" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="283" cy="540" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="376" cy="530" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="469" cy="518" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="562" cy="508" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="655" cy="492" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="748" cy="502" r="5" fill="white" stroke="#EF4444" stroke-width="2.5"/>
+    <circle cx="841" cy="472" r="8" fill="#EF4444"/>
+    <circle cx="841" cy="472" r="4" fill="white"/>
+    <rect x="812" y="453" width="58" height="20" rx="10" fill="#EF4444"/>
+    <text x="841" y="463" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="white" font-weight="700">23项</text>
+  </g>
+
+  <!-- ===== 右侧：问题来源分布柱状图 ===== -->
+  <rect x="932" y="330" width="596" height="310" rx="24" fill="white" stroke="#E2E8F0"
+        filter="drop-shadow(0 2px 8px rgba(15,23,42,0.04))"/>
+  <g clip-path="url(#clip-bar)">
+    <text x="968" y="362" dominant-baseline="middle" font-size="20" fill="#0F172A" font-weight="700">问题来源分布</text>
+    <rect x="1390" y="350" width="72" height="24" rx="12" fill="#CCFBF1"/>
+    <text x="1426" y="362" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#0F766E" font-weight="600">共 23 项</text>
+    <line x1="960" y1="390" x2="1510" y2="390" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="960" y1="430" x2="1510" y2="430" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="960" y1="470" x2="1510" y2="470" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="960" y1="510" x2="1510" y2="510" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="960" y1="550" x2="1510" y2="550" stroke="#F1F5F9" stroke-width="1.5"/>
+    <line x1="960" y1="570" x2="1510" y2="570" stroke="#CBD5E1" stroke-width="2"/>
+    <text x="950" y="570" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">0</text>
+    <text x="950" y="510" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">5</text>
+    <text x="950" y="450" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">10</text>
+    <text x="950" y="390" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94A3B8">15</text>
+    <rect x="1000" y="462" width="80" height="108" rx="12" fill="url(#bar-teal)"
+          filter="drop-shadow(0 4px 8px rgba(15,118,110,0.25))"/>
+    <text x="1040" y="452" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="#0F766E" font-weight="700">9</text>
+    <text x="1040" y="590" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#475569">巡检</text>
+    <rect x="1130" y="498" width="80" height="72" rx="12" fill="url(#bar-blue)"
+          filter="drop-shadow(0 4px 8px rgba(37,99,235,0.20))"/>
+    <text x="1170" y="488" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="#2563EB" font-weight="700">6</text>
+    <text x="1170" y="590" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#475569">培训</text>
+    <rect x="1260" y="510" width="80" height="60" rx="12" fill="url(#bar-amber)"
+          filter="drop-shadow(0 4px 8px rgba(217,119,6,0.20))"/>
+    <text x="1300" y="500" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="#D97706" font-weight="700">5</text>
+    <text x="1300" y="590" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#475569">预警</text>
+    <rect x="1390" y="534" width="80" height="36" rx="12" fill="url(#bar-red)"
+          filter="drop-shadow(0 4px 8px rgba(220,38,38,0.20))"/>
+    <text x="1430" y="524" text-anchor="middle" dominant-baseline="middle" font-size="15" fill="#DC2626" font-weight="700">3</text>
+    <text x="1430" y="590" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#475569">复核</text>
+  </g>
+
+  <!-- ===== 底部：高风险问题 TOP5 ===== -->
+  <rect x="72" y="658" width="1456" height="170" rx="24" fill="white" stroke="#E2E8F0"/>
+  <text x="108" y="690" dominant-baseline="middle" font-size="18" fill="#0F172A" font-weight="700">高风险问题 TOP5</text>
+  <rect x="1380" y="676" width="120" height="26" rx="13" fill="#CCFBF1"/>
+  <text x="1440" y="689" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#0F766E" font-weight="600">查看全部 →</text>
+  <line x1="72" y1="706" x2="1528" y2="706" stroke="#F1F5F9" stroke-width="1.5"/>
+  <!-- TOP1 -->
+  <rect x="88" y="716" width="278" height="96" rx="16" fill="#FFF7ED" stroke="#FED7AA"/>
+  <rect x="88" y="716" width="278" height="5" rx="3" fill="#F97316"/>
+  <rect x="100" y="730" width="28" height="28" rx="8" fill="#FFEDD5"/>
+  <text x="114" y="744" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#C2410C" font-weight="800">T1</text>
+  <text x="140" y="738" dominant-baseline="middle" font-size="14" fill="#0F172A" font-weight="600">餐具消毒台账缺失</text>
+  <text x="140" y="756" dominant-baseline="middle" font-size="12" fill="#94A3B8">后厨区 · 高风险</text>
+  <rect x="100" y="768" width="254" height="8" rx="4" fill="#FED7AA"/>
+  <rect x="100" y="768" width="220" height="8" rx="4" fill="#F97316"/>
+  <text x="330" y="772" dominant-baseline="middle" font-size="11" fill="#F97316" font-weight="600"> 86%</text>
+  <!-- TOP2 -->
+  <rect x="382" y="716" width="278" height="96" rx="16" fill="#FEF2F2" stroke="#FECACA"/>
+  <rect x="382" y="716" width="278" height="5" rx="3" fill="#EF4444"/>
+  <rect x="394" y="730" width="28" height="28" rx="8" fill="#FEE2E2"/>
+  <text x="408" y="744" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#B91C1C" font-weight="800">T2</text>
+  <text x="434" y="738" dominant-baseline="middle" font-size="14" fill="#0F172A" font-weight="600">留样柜温度异常</text>
+  <text x="434" y="756" dominant-baseline="middle" font-size="12" fill="#94A3B8">储藏室 · 高风险</text>
+  <rect x="394" y="768" width="254" height="8" rx="4" fill="#FECACA"/>
+  <rect x="394" y="768" width="190" height="8" rx="4" fill="#EF4444"/>
+  <text x="624" y="772" dominant-baseline="middle" font-size="11" fill="#EF4444" font-weight="600"> 75%</text>
+  <!-- TOP3 -->
+  <rect x="676" y="716" width="278" height="96" rx="16" fill="#FFFBEB" stroke="#FDE68A"/>
+  <rect x="676" y="716" width="278" height="5" rx="3" fill="#F59E0B"/>
+  <rect x="688" y="730" width="28" height="28" rx="8" fill="#FEF3C7"/>
+  <text x="702" y="744" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#B45309" font-weight="800">T3</text>
+  <text x="728" y="738" dominant-baseline="middle" font-size="14" fill="#0F172A" font-weight="600">食材标签不规范</text>
+  <text x="728" y="756" dominant-baseline="middle" font-size="12" fill="#94A3B8">库房 · 中风险</text>
+  <rect x="688" y="768" width="254" height="8" rx="4" fill="#FDE68A"/>
+  <rect x="688" y="768" width="165" height="8" rx="4" fill="#F59E0B"/>
+  <text x="918" y="772" dominant-baseline="middle" font-size="11" fill="#F59E0B" font-weight="600"> 65%</text>
+  <!-- TOP4 -->
+  <rect x="970" y="716" width="278" height="96" rx="16" fill="#EFF6FF" stroke="#BFDBFE"/>
+  <rect x="970" y="716" width="278" height="5" rx="3" fill="#3B82F6"/>
+  <rect x="982" y="730" width="28" height="28" rx="8" fill="#DBEAFE"/>
+  <text x="996" y="744" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#1D4ED8" font-weight="800">T4</text>
+  <text x="1022" y="738" dominant-baseline="middle" font-size="14" fill="#0F172A" font-weight="600">健康证过期未更新</text>
+  <text x="1022" y="756" dominant-baseline="middle" font-size="12" fill="#94A3B8">人员管理 · 中风险</text>
+  <rect x="982" y="768" width="254" height="8" rx="4" fill="#BFDBFE"/>
+  <rect x="982" y="768" width="140" height="8" rx="4" fill="#3B82F6"/>
+  <text x="1212" y="772" dominant-baseline="middle" font-size="11" fill="#3B82F6" font-weight="600"> 55%</text>
+  <!-- TOP5 -->
+  <rect x="1264" y="716" width="264" height="96" rx="16" fill="#F0FDF4" stroke="#BBF7D0"/>
+  <rect x="1264" y="716" width="264" height="5" rx="3" fill="#22C55E"/>
+  <rect x="1276" y="730" width="28" height="28" rx="8" fill="#DCFCE7"/>
+  <text x="1290" y="744" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#166534" font-weight="800">T5</text>
+  <text x="1316" y="738" dominant-baseline="middle" font-size="14" fill="#0F172A" font-weight="600">操作台卫生不达标</text>
+  <text x="1316" y="756" dominant-baseline="middle" font-size="12" fill="#94A3B8">后厨区 · 低风险</text>
+  <rect x="1276" y="768" width="240" height="8" rx="4" fill="#BBF7D0"/>
+  <rect x="1276" y="768" width="96" height="8" rx="4" fill="#22C55E"/>
+  <text x="1516" y="772" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#22C55E" font-weight="600">40%</text>
+</svg>
