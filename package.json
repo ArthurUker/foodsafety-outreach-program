@@ -1,0 +1,27 @@
+{
+  "name": "foodsafety-outreach-program",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "校园食品安全「检·教·治」一体化推广方案展示站（全栈版）",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "start": "npm --prefix backend start",
+    "build": "node scripts/build-static.js",
+    "serve": "node scripts/dev-server.js",
+    "db:generate": "npm --prefix backend run db:generate",
+    "db:push": "npm --prefix backend run db:push",
+    "db:deploy": "npm --prefix backend run db:deploy",
+    "db:studio": "npm --prefix backend run db:studio",
+    "seed": "npm --prefix backend run seed",
+    "seed:content": "npm --prefix backend run seed:content",
+    "smoke": "node scripts/smoke-render.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "jsdom": "^30.0.1"
+  }
+}
