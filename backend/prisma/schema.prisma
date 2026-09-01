@@ -1,0 +1,102 @@
+// Prisma schema —— 校园食安推广方案站
+// provider 固定为 postgresql（开发/测试/生产统一，避免本地 SQLite 与生产 PG 行为差异）。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 后台管理员账号。单站宣传站不设多租户，角色仅区分 owner / editor。
+model AdminUser {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  displayName  String?
+  role         String    @default("editor") // owner | editor
+  status       String    @default("active") // active | disabled
+  mustChangePassword Boolean @default(false)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+}
+
+/// 站点章节内容。key 唯一，payload 为章节结构化数据（JSON）。
+/// 前端渲染完全由 payload 驱动，改文案不再需要改代码。
+model ContentSection {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String?
+  subtitle  String?
+  payload   Json
+  sortOrder Int      @default(0)
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@index([sortOrder])
+}
+
+/// 联系我们咨询留言。
+model Inquiry {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String
+  org       String?
+  message   String
+  status    String   @default("new") // new | processing | closed
+  note      String?
+  handledBy String?
+  handledAt DateTime?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+/// 审计日志。生产环境不得物理删除（见 docs/PROJECT_CONVENTIONS.md）。
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String?
+  actorName    String?
+  action       String
+  resourceType String?
+  resourceId   String?
+  details      Json?
+  ip           String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([actorId])
+}
+
+/// 令牌吊销表（登出 / 改密 / 禁用账号后即时生效，不等 JWT 自然过期）。
+/// 与 foodtestlab 同款机制，按 jti 精确吊销 + user_all 全量吊销。
+model RevokedToken {
+  id        String   @id @default(cuid())
+  jti       String
+  userId    String?
+  revokedAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@unique([jti])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// 站点级配置（联系信息、页脚、SEO 等），与章节内容分离。
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
