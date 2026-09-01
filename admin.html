@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>内容管理后台 | 校园食安卫士</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <!-- 登录视图 -->
+  <div class="admin-login" id="loginView">
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <div class="login-brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 64 64" width="26" height="26" role="img" aria-label="logo">
+            <path d="M32 8l20 8v18c0 13-9 21-20 23-11-2-20-10-20-23V16z" fill="currentColor" opacity="0.16"/>
+            <path d="M32 8l20 8v18c0 13-9 21-20 23-11-2-20-10-20-23V16z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M23 32l6 6 12-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div>
+          <h1>内容管理后台</h1>
+          <p>校园食安卫士推广方案站</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="loginUsername">用户名</label>
+        <input class="input" id="loginUsername" name="username" type="text" autocomplete="username" required />
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">密码</label>
+        <input class="input" id="loginPassword" name="password" type="password" autocomplete="current-password" required />
+      </div>
+
+      <label class="checkbox">
+        <input type="checkbox" id="loginRemember" /> 记住登录状态（在本机保留 8 小时）
+      </label>
+
+      <button class="btn btn-primary btn-block" type="submit" id="loginSubmit">登录</button>
+      <p class="form-note" id="loginNote" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <!-- 控制台视图 -->
+  <div class="admin-shell" id="adminView" hidden>
+    <header class="admin-header">
+      <div class="container admin-header-inner">
+        <strong class="admin-title">内容管理后台</strong>
+        <nav class="admin-tabs" id="adminTabs" aria-label="后台功能">
+          <button class="admin-tab is-active" type="button" data-tab="content">章节内容</button>
+          <button class="admin-tab" type="button" data-tab="inquiries">咨询留言</button>
+          <button class="admin-tab" type="button" data-tab="audit">审计日志</button>
+          <button class="admin-tab" type="button" data-tab="account">账号安全</button>
+        </nav>
+        <div class="admin-user">
+          <span id="adminUserLabel"></span>
+          <button class="btn btn-ghost btn-sm" type="button" id="logoutBtn">退出</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container admin-main">
+      <!-- 章节内容 -->
+      <section class="admin-panel is-active" data-panel="content">
+        <div class="panel-toolbar">
+          <div class="field inline">
+            <label for="sectionSelect">选择章节</label>
+            <select class="select" id="sectionSelect"></select>
+          </div>
+          <div class="toolbar-actions">
+            <span class="meta" id="sectionMeta"></span>
+            <button class="btn btn-ghost btn-sm" type="button" id="reloadContentBtn">重新载入</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="formatBtn">格式化 JSON</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="resetBtn">恢复种子内容</button>
+            <button class="btn btn-primary btn-sm" type="button" id="saveContentBtn">保存修改</button>
+          </div>
+        </div>
+        <p class="hint">
+          以 JSON 编辑章节内容。保存前会在服务端做结构与安全校验（嵌套 ≤6 层、体积 ≤200KB、链接与颜色合法性）。
+        </p>
+        <textarea class="textarea json-editor" id="contentEditor" spellcheck="false"></textarea>
+        <p class="form-note" id="contentNote" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 咨询留言 -->
+      <section class="admin-panel" data-panel="inquiries">
+        <div class="panel-toolbar">
+          <div class="field inline">
+            <label for="inquiryStatus">状态筛选</label>
+            <select class="select" id="inquiryStatus">
+              <option value="">全部</option>
+              <option value="new">待处理</option>
+              <option value="processing">处理中</option>
+              <option value="closed">已关闭</option>
+            </select>
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-ghost btn-sm" type="button" id="reloadInquiryBtn">刷新</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="exportCsvBtn">导出 CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="inquiryTable">
+            <thead>
+              <tr>
+                <th>提交时间</th><th>姓名</th><th>单位</th><th>联系电话</th><th>邮箱</th><th>咨询内容</th><th>状态</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="inquiryBody"></tbody>
+          </table>
+        </div>
+        <p class="form-note" id="inquiryNote" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 审计日志 -->
+      <section class="admin-panel" data-panel="audit">
+        <div class="panel-toolbar">
+          <div class="field inline">
+            <label for="auditAction">操作类型</label>
+            <select class="select" id="auditAction">
+              <option value="">全部</option>
+              <option value="login_success">登录成功</option>
+              <option value="login_failed">登录失败</option>
+              <option value="content_update">内容更新</option>
+              <option value="content_reset">内容恢复</option>
+              <option value="inquiry_create">留言提交</option>
+              <option value="inquiry_update">留言处理</option>
+              <option value="inquiry_delete">留言删除</option>
+              <option value="change_password">修改密码</option>
+            </select>
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-ghost btn-sm" type="button" id="reloadAuditBtn">刷新</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>时间</th><th>操作者</th><th>操作</th><th>对象</th><th>IP</th><th>详情</th></tr>
+            </thead>
+            <tbody id="auditBody"></tbody>
+          </table>
+        </div>
+        <p class="form-note" id="auditNote" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 账号安全 -->
+      <section class="admin-panel" data-panel="account">
+        <div class="account-card">
+          <h3>修改登录密码</h3>
+          <p class="hint">修改成功后当前所有登录会话会立即失效，需要使用新密码重新登录。</p>
+          <form id="passwordForm">
+            <div class="field">
+              <label for="currentPassword">当前密码</label>
+              <input class="input" id="currentPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <div class="field">
+              <label for="newPassword">新密码</label>
+              <input class="input" id="newPassword" type="password" autocomplete="new-password" required />
+            </div>
+            <div class="field">
+              <label for="confirmPassword">确认新密码</label>
+              <input class="input" id="confirmPassword" type="password" autocomplete="new-password" required />
+            </div>
+            <button class="btn btn-primary" type="submit" id="passwordSubmit">更新密码</button>
+            <p class="form-note" id="passwordNote" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <!-- 强制改密提示 -->
+      <section class="admin-panel" data-panel="force" id="forcePanel">
+        <div class="account-card">
+          <h3>首次登录需修改密码</h3>
+          <p class="hint">当前账号被标记为必须修改密码，请先设置新密码后再使用其它功能。</p>
+          <button class="btn btn-primary" type="button" id="gotoPasswordBtn">前往修改密码</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="js/admin/app.js"></script>
+</body>
+</html>

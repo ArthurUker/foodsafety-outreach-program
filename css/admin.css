@@ -1,0 +1,227 @@
+/**
+ * 后台管理控制台样式（独立于前台视觉体系，走紧凑的工具型布局）。
+ */
+
+body {
+  background: var(--ink-50);
+}
+
+/* ===== 登录 ===== */
+.admin-login {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--sp-6);
+  background:
+    radial-gradient(900px 500px at 20% -10%, rgba(15, 118, 110, 0.16), transparent 60%),
+    radial-gradient(700px 400px at 92% 10%, rgba(37, 99, 235, 0.12), transparent 62%),
+    var(--ink-50);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--sp-10);
+  background: var(--surface);
+  border: 1px solid var(--ink-100);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-8);
+}
+
+.login-brand .brand-mark {
+  width: 46px;
+  height: 46px;
+  color: var(--brand);
+  background: var(--brand-soft);
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+}
+
+.login-brand h1 {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.login-brand p {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--ink-500);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--ink-600);
+  cursor: pointer;
+}
+
+/* ===== 控制台骨架 ===== */
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--surface);
+  border-bottom: 1px solid var(--ink-100);
+}
+
+.admin-header-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  height: 60px;
+}
+
+.admin-title {
+  font-size: var(--fs-md);
+  color: var(--ink-900);
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.admin-tab {
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--ink-600);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.admin-tab:hover { background: var(--ink-100); }
+
+.admin-tab.is-active {
+  color: var(--brand);
+  background: var(--brand-soft);
+  font-weight: 600;
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--ink-600);
+}
+
+.admin-main {
+  padding: var(--sp-8) var(--sp-6) var(--sp-16);
+}
+
+.admin-panel { display: none; }
+.admin-panel.is-active { display: block; }
+
+.panel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.field.inline {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: 0;
+}
+
+.field.inline .select { min-width: 200px; }
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+
+.meta,
+.hint {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--ink-500);
+}
+
+.json-editor {
+  min-height: 460px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+/* ===== 表格操作列 ===== */
+.data-table td {
+  white-space: normal;
+  vertical-align: top;
+}
+
+.data-table .col-msg {
+  min-width: 260px;
+  max-width: 460px;
+  color: var(--ink-600);
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.status-select {
+  padding: 5px 8px;
+  font-size: var(--fs-xs);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+/* ===== 账号卡片 ===== */
+.account-card {
+  max-width: 460px;
+  padding: var(--sp-8);
+  background: var(--surface);
+  border: 1px solid var(--ink-100);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.account-card h3 {
+  font-size: var(--fs-md);
+}
+
+@media (max-width: 900px) {
+  .admin-header-inner {
+    height: auto;
+    flex-wrap: wrap;
+    padding: var(--sp-3) 0;
+    gap: var(--sp-3);
+  }
+
+  .admin-tabs {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    margin-right: 0;
+  }
+
+  .admin-user { margin-left: auto; }
+
+  .toolbar-actions { margin-left: 0; }
+}
