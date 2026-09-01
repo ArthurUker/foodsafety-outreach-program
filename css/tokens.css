@@ -1,0 +1,112 @@
+/**
+ * 设计令牌（Design Tokens）—— 全站唯一的样式变量来源。
+ * 改主题只需调整本文件，组件与章节样式不写死颜色与尺寸。
+ */
+
+:root {
+  /* ===== 品牌色 ===== */
+  --brand: #0f766e;
+  --brand-strong: #0b5d56;
+  --brand-soft: #d5f2ee;
+  --brand-glow: rgba(15, 118, 110, 0.18);
+
+  --accent: #f59e0b;
+  --accent-soft: #fef3c7;
+
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --info: #2563eb;
+  --info-soft: #dbeafe;
+
+  /* ===== 中性色 ===== */
+  --ink-900: #0f172a;
+  --ink-800: #1e293b;
+  --ink-700: #334155;
+  --ink-600: #475569;
+  --ink-500: #64748b;
+  --ink-400: #94a3b8;
+  --ink-300: #cbd5e1;
+  --ink-200: #e2e8f0;
+  --ink-100: #f1f5f9;
+  --ink-50: #f8fafc;
+
+  --surface: #ffffff;
+  --surface-muted: #f6f9fb;
+  --surface-dark: #0b1a24;
+
+  /* ===== 排版 ===== */
+  --font-sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+  --fs-3xl: 2.25rem;
+  --fs-4xl: 2.75rem;
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.45;
+  --lh-base: 1.75;
+
+  /* ===== 间距 ===== */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-20: 5rem;
+
+  /* ===== 圆角 ===== */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-full: 999px;
+
+  /* ===== 阴影 ===== */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 18px 48px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 12px 32px var(--brand-glow);
+
+  /* ===== 动效 ===== */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+
+  /* ===== 布局 ===== */
+  --container: 1200px;
+  --header-h: 72px;
+
+  /* ===== 层级 ===== */
+  --z-header: 100;
+  --z-backtop: 90;
+  --z-modal: 200;
+}
+
+/* 深色区块内的局部令牌覆盖 */
+.section-dark {
+  --ink-900: #f1f5f9;
+  --ink-800: #e2e8f0;
+  --ink-700: #cbd5e1;
+  --ink-600: #94a3b8;
+  --ink-500: #94a3b8;
+  --ink-200: rgba(255, 255, 255, 0.14);
+  --ink-100: rgba(255, 255, 255, 0.08);
+  --surface: rgba(255, 255, 255, 0.05);
+}
