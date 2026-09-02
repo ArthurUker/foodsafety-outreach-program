@@ -74,15 +74,24 @@
   gap: var(--sp-4);
 }
 
-/* 指标卡：内层玻璃面板（不叠加 backdrop-filter） */
+/* 指标卡：外层玻璃（与驾驶舱面板是兄弟关系，不构成嵌套）。
+   小卡片用 1.7rem 圆角偏大，覆盖为常规圆角。 */
 .metric-card {
   padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-md);
   transition: transform var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+/* 玻璃高光伪元素会盖在内容之上，需让内容上浮（.card 已有同类规则） */
+.metric-card > *,
+.contact-item > * {
+  position: relative;
+  z-index: 1;
 }
 
 .metric-value {
@@ -651,6 +660,7 @@
   margin-bottom: var(--sp-4);
 }
 
+/* 位于 .tech-panel（含 backdrop-filter）内部，故此处不再叠加滤镜（避免嵌套相乘） */
 .tech-btn {
   display: grid;
   place-items: center;
@@ -659,11 +669,9 @@
   font-size: 20px;
   line-height: 1;
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
   border-radius: 50%;
   transition: background var(--dur-fast) var(--ease);
 }
@@ -1110,6 +1118,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-5);
+}
+
+/* 联系信息项：外层玻璃（与表单容器左右对称） */
+.contact-item.glass {
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-md);
 }
 
 .contact-item h3 {

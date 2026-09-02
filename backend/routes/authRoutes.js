@@ -31,7 +31,7 @@ export function createAuthRoutes({ prisma, authenticateUser, authService, rateLi
     if (!isValidUsername(username) || !password) {
       return res.status(400).json({ error: '请输入合法的用户名与密码。' });
     }
-    if (!checkLoginLimit(`${req.ip}:${username}`, res)) {
+    if (!checkLoginLimit(`${req.ip}:${username}`)) {
       return res.status(429).json({ error: '登录尝试过于频繁，请 15 分钟后再试。' });
     }
 

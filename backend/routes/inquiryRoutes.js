@@ -6,12 +6,7 @@
  */
 
 import express from 'express';
-import {
-  sanitizeText,
-  sanitizeMultilineText,
-  parsePagination,
-  escapeHtml,
-} from '../lib/validation.js';
+import { sanitizeText, sanitizeMultilineText, parsePagination } from '../lib/validation.js';
 import { isPhone, isEmail } from '../lib/securityGuards.js';
 import { writeAuditLog } from '../lib/auditLog.js';
 import { rateLimitBy, requestSafetyGuard } from '../middleware/validationMiddleware.js';
@@ -72,7 +67,7 @@ export function createInquiryRoutes({ prisma, authenticateUser, authorizeRoles }
     if (!isEmail(email)) return res.status(400).json({ error: '请输入有效的邮箱地址。' });
     if (message.length < 10) return res.status(400).json({ error: '咨询内容不少于 10 个字。' });
 
-    if (!submitLimit(`inquiry:${req.ip}`, res)) {
+    if (!submitLimit(`inquiry:${req.ip}`)) {
       return res.status(429).json({ error: '提交过于频繁，请稍后再试。' });
     }
 
@@ -217,5 +212,3 @@ export function createInquiryRoutes({ prisma, authenticateUser, authorizeRoles }
 
   return router;
 }
-
-export { escapeHtml };

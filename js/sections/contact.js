@@ -18,7 +18,7 @@ function channelList(channels) {
     'div.contact-list',
     {},
     CHANNEL_FIELDS.filter(({ key }) => channels[key]).map(({ key, label }) =>
-      el('div.contact-item.glass-panel', {}, [el('h3', { text: label }), el('p', { text: channels[key] })]),
+      el('div.contact-item.glass', {}, [el('h3', { text: label }), el('p', { text: channels[key] })]),
     ),
   );
 }

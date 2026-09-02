@@ -42,11 +42,12 @@ export function rateLimit(max = 1000, windowMs = 60_000) {
 
 /**
  * 针对单个 key 的限流（如登录端点按「IP + 用户名」限流）。
+ * 返回判定函数：放行 true，超限 false。
  */
 export function rateLimitBy(max = 10, windowMs = 15 * 60 * 1000) {
   const hits = new Map();
 
-  return function keyedRateLimit(key, res) {
+  return function keyedRateLimit(key) {
     const now = Date.now();
     const timestamps = (hits.get(key) || []).filter((t) => now - t < windowMs);
     if (timestamps.length >= max) return false;

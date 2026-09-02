@@ -267,6 +267,10 @@
   vertical-align: middle;
 }
 
+/* 注：此处刻意不使用 position:sticky。
+   .table-wrap 为 overflow-x:auto 且无高度限制，overflow-y 会计算为 auto，
+   sticky 相对该容器定位但容器没有滚动高度，吸顶不会生效（属于无效声明）。
+   若将来表格变长需要吸顶，需同时给 .table-wrap 设 max-height。 */
 .data-table thead th {
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -275,9 +279,6 @@
   color: #134e4a;
   background: rgba(255, 255, 255, 0.72);
   border-bottom: 1.5px solid rgba(15, 118, 110, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .data-table tbody tr { transition: background-color 0.15s ease; }
