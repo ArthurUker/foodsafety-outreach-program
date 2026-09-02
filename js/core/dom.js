@@ -37,7 +37,14 @@ export function el(tag, props = {}, children = null) {
         Object.assign(node.dataset, value);
         break;
       case 'style':
-        Object.assign(node.style, value);
+        // ⚠️ 自定义属性（--*）无法通过 `style.prop = v` 或 Object.assign 设置，
+        // 必须走 setProperty()。早期版本用 Object.assign 导致 --i（错峰动画延迟）
+        // 全部静默失效，表现为所有 reveal 元素同时出现、没有阶梯感。
+        for (const [prop, val] of Object.entries(value)) {
+          if (val === null || val === undefined || val === false) continue;
+          if (prop.startsWith('--')) node.style.setProperty(prop, String(val));
+          else node.style[prop] = val;
+        }
         break;
       case 'on':
         for (const [evt, handler] of Object.entries(value)) node.addEventListener(evt, handler);
