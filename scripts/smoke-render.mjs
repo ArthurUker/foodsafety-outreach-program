@@ -90,6 +90,30 @@ try {
   report(false, `XSS 注入：${err.message}`);
 }
 
+console.log('\n— 玻璃材质 —');
+/**
+ * 玻璃风格最容易翻车的约束：**backdrop-filter 不得嵌套**。
+ * 两层玻璃叠加会让滤镜相乘，视觉上迅速糊成一片、文字不可读。
+ * 因此外层用 .glass，内层一律用 .glass-panel（不带 backdrop-filter）。
+ */
+try {
+  const violations = [];
+  for (const key of SECTION_ORDER) {
+    const node = SECTION_REGISTRY[key].render(seed.sections[key]?.payload ?? {});
+    if (!node) continue;
+    const nested = node.querySelectorAll('.glass .glass, .glass-dark .glass, .glass .glass-dark');
+    if (nested.length > 0) {
+      violations.push(
+        `${key}: ${nested.length} 处玻璃嵌套（${[...new Set([...nested].map((n) => n.className.split(' ')[0]))].join(', ')}）`,
+      );
+    }
+  }
+  if (violations.length > 0) throw new Error(violations.join('；'));
+  report(true, '无玻璃嵌套：内层面板均使用 .glass-panel（避免 backdrop-filter 相乘）');
+} catch (err) {
+  report(false, `玻璃嵌套检查：${err.message}`);
+}
+
 console.log('\n— 容错 —');
 try {
   for (const key of SECTION_ORDER) {

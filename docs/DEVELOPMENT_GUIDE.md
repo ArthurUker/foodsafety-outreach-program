@@ -168,7 +168,25 @@ npm run seed:content
 
 ---
 
-## 7.1 渲染冒烟测试
+## 7.1 玻璃化样式开发须知
+
+改动视觉时请遵守（详见 `PROJECT_CONVENTIONS.md` 规则十一～十三）：
+
+1. **不要给 `.glass` 容器再设 `background`** —— 会覆盖掉半透明材质。
+   需要区分层次请改用 `.glass-panel`。
+2. **不要嵌套玻璃** —— `.glass .glass` 会让 `backdrop-filter` 相乘，两层即糊。
+   `npm run smoke` 会检查并失败。
+3. **新增页面必须内联 `#lg-refraction` SVG 滤镜**，且 `glass.css` 要在 `base.css` 之后加载
+   （它需要把 `--page-bg` 覆盖为 `transparent`）。
+4. **深色区块用 `--glass-dark-veil` 而不是 `--glass-dark-bg`** —— 后者仅 42% 不透明，
+   直接铺在亮色极光上会泛白，导致浅色文字看不清。
+
+调主题色改 `css/tokens.css` 即可：极光四角 `--aurora-1..4`、玻璃底色 `--glass-bg`、
+模糊强度 `--glass-blur`。
+
+---
+
+## 7.2 渲染冒烟测试
 
 改动 `js/sections/*.js` 或 `js/core/dom.js` 后**必须**执行：
 

@@ -53,7 +53,7 @@
 | ORM / 数据库 | Prisma 5 + PostgreSQL | `backend/prisma/schema.prisma` |
 | 认证 | jsonwebtoken 9 + bcryptjs 2 | 无状态 JWT + 令牌吊销表，bcrypt 存储 |
 | 前端 | 原生 ES Module（无打包器） | 浏览器直载，`js/**` 分层 |
-| 样式 | 原生 CSS + 设计令牌 | `css/tokens.css` 为唯一变量来源 |
+| 样式 | 原生 CSS + 设计令牌 + 玻璃化 | `css/tokens.css` 为唯一变量来源，`css/glass.css` 为玻璃材质层 |
 | 构建 | `scripts/build-static.js` | 纯拷贝生成 `dist/`（无转译、无打包） |
 | 反向代理 | Caddy 2 | 静态托管 `dist/` + 同域反代 `/api/*` |
 | 进程管理 | systemd | 崩溃自动重启、内存上限 |
@@ -90,7 +90,7 @@ foodsafety-outreach-program/
 │   │   └── inquiryForm.js      # 咨询表单交互
 │   ├── sections/               # 8 个章节渲染器（纯函数：payload → HTMLElement）
 │   └── admin/app.js            # 后台控制台
-├── css/                        # tokens / base / layout / components / sections / admin
+├── css/                        # tokens / glass / base / layout / components / sections / admin
 ├── scripts/
 │   ├── build-static.js         # 构建 dist/
 │   └── dev-server.js           # 本地静态预览（零依赖）
@@ -234,7 +234,27 @@ node scripts/build-static.js
 
 ---
 
-## 8. 安全设计摘要
+## 8. 视觉体系：玻璃化（Glassmorphism）
+
+视觉参考 `Tianjiabing_foodtestlab`，采用五层玻璃结构，实现集中在 `css/glass.css`：
+
+| 层 | 载体 | 作用 |
+| --- | --- | --- |
+| ① 壁纸层 | `body::before` | 多色极光，是玻璃「折射的对象」——没有它，毛玻璃等于磨砂塑料 |
+| ② 外层玻璃 | `.glass` / `.glass-dark` | 半透明底 + `backdrop-filter` + 顶部弧形高光 |
+| ③ 内层面板 | `.glass-panel` | 只做半透明，**不加滤镜**（滤镜相乘会糊） |
+| ④ 可读性层 | `.glass-table`、表单控件 | 玻璃背景会吃掉细线，表格与输入框需单独提对比度 |
+| ⑤ 降级层 | 四重媒体查询 | 减弱透明 / 增强对比 / 减弱动效 / 不支持滤镜 |
+
+折射效果来自 HTML 内联的 SVG 滤镜 `#lg-refraction`（`feTurbulence` + `feDisplacementMap`），
+每个页面都需内联，缺失会导致 `backdrop-filter` 整条失效（构建脚本已校验）。
+
+三条硬约束详见 `docs/PROJECT_CONVENTIONS.md` 规则十一～十三：
+**玻璃不得嵌套**、**新增页面必须内联滤镜**、**深色区块须用遮罩层**。
+
+---
+
+## 9. 安全设计摘要
 
 - **启动守卫**：`JWT_SECRET` 缺失/弱密钥、`CORS_ORIGIN` 含通配符 → 进程拒绝启动。
 - **登录保护**：统一失败文案 + 假 bcrypt 比较拉平时序（防用户名枚举与侧信道）；生产 5 次失败/15 分钟临时锁定。
@@ -247,6 +267,6 @@ node scripts/build-static.js
 
 ---
 
-## 9. License
+## 10. License
 
 本项目用于学术交流、方案汇报与项目展示。正式对外发布前请补充真实业务资料、版权资源说明与隐私政策。

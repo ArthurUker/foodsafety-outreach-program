@@ -4,6 +4,51 @@
 
 ---
 
+## [2.1.0] - 2026-09-02
+
+### 新增
+
+**视觉：玻璃化设计系统（参考 Tianjiabing_foodtestlab）**
+
+- `css/glass.css`：五层玻璃结构实现
+  - ① 壁纸层 `body::before`：四角极光 + 底层洗染渐变，`blur(22px) saturate(165%)`，
+    40s 缓慢漂移动画；另叠一层极淡噪点防大面积渐变色带
+  - ② 外层玻璃 `.glass` / `.glass-dark`：半透明底 + `backdrop-filter`（含
+    `url(#lg-refraction)` 折射）+ 顶部弧形高光伪元素 + 内描边/内发光/外投影
+  - ③ 内层面板 `.glass-panel` / `.glass-panel-dark`：只做半透明，不带滤镜
+  - ④ 可读性层 `.glass-table`、玻璃上的表单控件：重新设计表格斑马纹与分隔线，
+    输入框提至 72% 不透明度，保证玻璃背景上的内容清晰
+  - ⑤ 降级层：四重兜底 —— `prefers-reduced-transparency`、`prefers-contrast: more`、
+    `prefers-reduced-motion`、 `@supports not (backdrop-filter)` 退化为高不透明实心卡
+- `css/tokens.css`：新增极光变量（`--aurora-1..4` / `--aurora-w1..4` / `--aurora-base`）
+  与玻璃材质变量（`--glass-bg` / `--glass-dark-bg` / `--glass-dark-veil` / 高光体系）
+- HTML 内联 SVG 折射滤镜 `#lg-refraction`（`feTurbulence` + `feDisplacementMap`），
+  `index.html` 与 `admin.html` 均已注入
+
+**工程**
+
+- `scripts/build-static.js`：新增 `assertGlassIntegrity()`，校验 6 个必需样式表齐全
+  且两个 HTML 均内联折射滤镜，缺失直接阻断构建
+- `scripts/smoke-render.mjs`：新增「玻璃嵌套检查」，`.glass .glass` 等嵌套会直接失败
+
+### 变更
+
+- 全站卡片由实心白底改为玻璃材质：`.card`、`.table-wrap`、驾驶舱面板、
+  三大体系卡、能力分组、实证指标、阶段卡、服务项、FAQ、登录卡、后台账号卡
+- 页头改为悬浮玻璃条（滚动时加深）；页脚与深色区块改用 `--glass-dark-veil` 遮罩
+- 深色区块（技术架构区）的卡片改用深色玻璃变体，步骤按钮与面板同步
+- 按钮、标签、徽章、进度条、输入框等组件改为半透明 + 玻璃描边
+- 章节渲染器补充 `glass` / `glass-panel` 类（材质由 HTML 类声明，与参考仓库一致）
+
+### 修复
+
+- 深色区块对比度风险：深色玻璃仅 42% 不透明，直接铺在亮色极光上会泛白导致
+  浅色文字不可读 —— 新增 `--glass-dark-veil`（82%）专供大面积深色区域压暗极光
+- 样式表加载顺序：`glass.css` 原在 `base.css` 之前，其 `body { background: transparent }`
+  会被后者覆盖 —— 改为用 `--page-bg` 变量覆盖，与加载顺序解耦
+
+---
+
 ## [2.0.0] - 2026-09-01
 
 方案站全栈化重构。参考 `Tianjiabing_foodtestlab` 的成熟架构模式（分层目录、注册中心驱动、构建脚本、

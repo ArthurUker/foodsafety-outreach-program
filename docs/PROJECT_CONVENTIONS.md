@@ -93,6 +93,40 @@
 
 ---
 
+## 规则十一：玻璃材质不得嵌套
+
+玻璃风格（`css/glass.css`）的物理约束：**`backdrop-filter` 会随嵌套层级相乘**。
+
+- **外层**用 `.glass` / `.glass-dark`（含 `backdrop-filter`）
+- **内层**一律用 `.glass-panel` / `.glass-panel-dark`（**不带** `backdrop-filter`）
+- 禁止 `.glass .glass`、`.glass .glass-dark`、`.glass-dark .glass` 的嵌套
+
+违者视觉后果：两层即明显发糊，三层文字彻底不可读。
+`npm run smoke` 已内置该项检查，会直接失败。
+
+---
+
+## 规则十二：新增页面必须内联折射滤镜 SVG
+
+`.glass` 的 `backdrop-filter` 依赖 HTML 内联的 `#lg-refraction` 滤镜。
+**滤镜缺失时浏览器会丢弃整条 `backdrop-filter` 声明**（不是降级，是彻底失效），
+表现为「玻璃变成磨砂塑料」。
+
+新增页面时必须在 `<body>` 开头内联该 SVG（参见 `index.html`），
+`scripts/build-static.js` 的 `assertGlassIntegrity()` 会校验并阻断构建。
+
+---
+
+## 规则十三：深色区块必须用遮罩层，不能直接用深色玻璃变量
+
+`--glass-dark-bg` 仅 42% 不透明，直接铺在**亮色极光**上会泛白，
+导致浅色文字对比度不足（可读性事故）。
+
+大面积深色区域（`.section-dark`、`.site-footer`）必须先用
+`--glass-dark-veil`（82% 不透明）把极光压暗，再在其上放深色玻璃卡片形成层次。
+
+---
+
 ## 规则十：单实例约束
 
 以下状态存于**进程内存**，依赖单实例才正确：

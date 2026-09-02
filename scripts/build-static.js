@@ -17,6 +17,9 @@ const dist = path.join(root, 'dist');
 const filesToCopy = ['index.html', 'admin.html'];
 const dirsToCopy = ['css', 'js', 'data'];
 
+// 玻璃化依赖这些文件：缺失会导致极光壁纸与折射滤镜整体失效（表现为「玻璃变成磨砂塑料」）
+const REQUIRED_CSS = ['tokens.css', 'glass.css', 'base.css', 'layout.css', 'components.css', 'sections.css'];
+
 function ensureCleanDist() {
   fs.rmSync(dist, { recursive: true, force: true });
   fs.mkdirSync(dist, { recursive: true });
@@ -37,11 +40,27 @@ function copyDir(relPath) {
   fs.cpSync(src, dst, { recursive: true });
 }
 
+/** 校验玻璃化依赖：样式表齐全 + 两个 HTML 都内联了折射滤镜 */
+function assertGlassIntegrity() {
+  for (const name of REQUIRED_CSS) {
+    if (!fs.existsSync(path.join(dist, 'css', name))) {
+      throw new Error(`缺少玻璃化依赖样式表：css/${name}`);
+    }
+  }
+  for (const page of filesToCopy) {
+    const html = fs.readFileSync(path.join(dist, page), 'utf8');
+    if (!html.includes('lg-refraction')) {
+      throw new Error(`${page} 未内联折射滤镜 #lg-refraction，玻璃效果会整体失效`);
+    }
+  }
+}
+
 function main() {
   ensureCleanDist();
   filesToCopy.forEach(copyFile);
   dirsToCopy.forEach(copyDir);
-  console.log('✅ 构建完成：dist/ 已生成');
+  assertGlassIntegrity();
+  console.log('✅ 构建完成：dist/ 已生成（玻璃化依赖校验通过）');
   console.log('   提示：生产部署前请确认 dist/ 内容与源码一致（改完源码必须重建）。');
 }
 
