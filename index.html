@@ -10,11 +10,23 @@
 
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
+  <!-- glass.css 必须在 base.css 之后：它需要把 body 背景改为透明，让极光壁纸透出 -->
+  <link rel="stylesheet" href="css/glass.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/sections.css" />
 </head>
 <body>
+  <!-- 玻璃折射滤镜（零侵入，供 .glass 的 backdrop-filter 引用）
+       缺失该滤镜会导致整条 backdrop-filter 声明失效，故每个页面都需内联。 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="lg-refraction" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise" />
+      <feGaussianBlur in="noise" stdDeviation="2" result="blurredNoise" />
+      <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="9" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
   <a class="skip-link" href="#overview">跳到主要内容</a>
 
   <header class="site-header" id="top">

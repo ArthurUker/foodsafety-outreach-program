@@ -1,0 +1,237 @@
+/**
+ * 玻璃化设计系统（Glassmorphism）—— 参考 Tianjiabing_foodtestlab 的成熟实现。
+ *
+ * 玻璃风格成立的前提是**分层**，共五层，缺一层效果就垮：
+ *
+ *   ① 壁纸层    body::before —— 固定的多色极光，是玻璃「折射的对象」
+ *   ② 外层玻璃  .glass / .glass-dark —— 半透明底 + backdrop-filter + 高光描边
+ *   ③ 内层面板  .glass-panel —— 只做半透明，**不加 backdrop-filter**
+ *   ④ 可读性层  .glass-table 等 —— 玻璃背景会吃掉细线，表格需重新设计
+ *   ⑤ 降级层   四重兜底（减弱透明 / 增强对比 / 减弱动效 / 不支持滤镜）
+ *
+ * ⚠️ 关键约束：
+ * - 玻璃必须叠在有高频色彩结构的背景上，纯白/纯色背景上毛玻璃等于磨砂塑料。
+ * - 禁止玻璃嵌套玻璃（backdrop-filter 会相乘，两层就糊，三层不可读）。
+ *   内层一律用 .glass-panel。
+ * - 折射滤镜 url(#lg-refraction) 由 HTML 内联 SVG 提供，缺失时浏览器会
+ *   整条 backdrop-filter 声明失效（不是降级，是直接丢掉），故下方保留
+ *   不带滤镜的 -webkit- 前缀版本先行声明。
+ */
+
+/* ============================================================
+   ① 壁纸层：极光
+   ============================================================ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;              /* 外扩，避免缩放动画露边 */
+  z-index: -2;
+  background:
+    linear-gradient(135deg, var(--aurora-1) 0%, transparent 32%),
+    linear-gradient(225deg, var(--aurora-2) 0%, transparent 34%),
+    linear-gradient(315deg, var(--aurora-3) 0%, transparent 36%),
+    linear-gradient(45deg, var(--aurora-4) 0%, transparent 34%),
+    linear-gradient(135deg, var(--aurora-w1), var(--aurora-w2), var(--aurora-w3), var(--aurora-w4));
+  background-color: var(--aurora-base);
+  filter: blur(var(--aurora-blur)) saturate(var(--aurora-saturate));
+  animation: aurora-drift 40s ease-in-out infinite alternate;
+  will-change: transform;
+  pointer-events: none;
+}
+
+@keyframes aurora-drift {
+  0%   { transform: scale(1.12) translate3d(0, 0, 0); }
+  50%  { transform: scale(1.18) translate3d(-2%, 1.5%, 0); }
+  100% { transform: scale(1.12) translate3d(0, 0, 0); }
+}
+
+/* 壁纸之上再叠一层极淡噪点，避免大面积渐变出现色带（banding） */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* body 与区块背景必须透明，否则会把壁纸层完全遮住。
+   用变量覆盖 base.css 的 body 背景，与加载顺序解耦。 */
+:root {
+  --page-bg: transparent;
+}
+
+.section,
+.section-muted,
+.section-contact,
+.section-hero {
+  background: transparent;
+}
+
+/* ============================================================
+   ② 外层玻璃
+   ============================================================ */
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: url(#lg-refraction) blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 2px 0 var(--glass-hi-top),
+    inset 0 0 0 1px var(--glass-hi-ring),
+    inset 0 0 34px var(--glass-hi-glow);
+  overflow: hidden;
+}
+
+/* 深色玻璃：深色区块内的卡片与面板 */
+.glass-dark {
+  position: relative;
+  background: var(--glass-dark-bg);
+  border: 1px solid var(--glass-dark-border);
+  border-radius: var(--glass-radius);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  backdrop-filter: url(#lg-refraction) blur(var(--glass-blur)) saturate(160%);
+  box-shadow:
+    var(--glass-shadow-dark),
+    inset 0 2px 0 rgba(255, 255, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+  overflow: hidden;
+}
+
+/* 玻璃上的顶部弧形高光（拟真玻璃反光），伪元素实现，不占布局 */
+.glass-sheen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 46%;
+  border-radius: 50% 50% 100% 100% / 0 0 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+/* ============================================================
+   ③ 内层面板：不叠加 backdrop-filter
+   ============================================================ */
+.glass-panel {
+  background: var(--glass-panel-bg);
+  border: 1px solid var(--glass-panel-border);
+  border-radius: var(--glass-panel-radius);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 4px 14px rgba(40, 60, 100, 0.08);
+}
+
+/* 深色区块内的内层面板 */
+.glass-panel-dark {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--glass-panel-radius);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* ============================================================
+   ④ 可读性层：玻璃背景会吃掉细线与低对比文字
+   ============================================================ */
+
+/* 表格：改用半透明斑马纹 + 极淡分隔线，避免玻璃背景上线条消失 */
+.glass-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-sm);
+}
+
+.glass-table thead th {
+  background: rgba(255, 255, 255, 0.72);
+  border-bottom: 1.5px solid rgba(15, 118, 110, 0.25);
+  color: #134e4a;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(6px);
+}
+
+.glass-table thead th:first-child { border-radius: 0.75rem 0 0 0; }
+.glass-table thead th:last-child { border-radius: 0 0.75rem 0 0; }
+
+.glass-table tbody tr { transition: background-color 0.15s ease; }
+.glass-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.28); }
+.glass-table tbody tr:nth-child(odd)  { background: rgba(255, 255, 255, 0.12); }
+.glass-table tbody tr:hover           { background: rgba(213, 242, 238, 0.5); }
+
+.glass-table td,
+.glass-table th {
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.glass-table td:not(:last-child),
+.glass-table th:not(:last-child) {
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.glass-table tbody tr:last-child td { border-bottom: none; }
+.glass-table tbody tr:last-child td:first-child { border-radius: 0 0 0 0.75rem; }
+.glass-table tbody tr:last-child td:last-child { border-radius: 0 0 0.75rem 0; }
+
+/* 玻璃上的表单控件：提高不透明度，保证输入内容清晰可读 */
+.glass .input,
+.glass .textarea,
+.glass .select,
+.glass-table .status-select {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(15, 118, 110, 0.22);
+}
+
+.glass .input:focus,
+.glass .textarea:focus,
+.glass .select:focus {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-glow);
+}
+
+/* ============================================================
+   ⑤ 降级层：四重兜底
+   ============================================================ */
+
+/* 1. 用户要求减少透明效果：提高不透明度，保留少量模糊 */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-dark {
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  }
+  .glass { background: rgba(255, 255, 255, 0.88); }
+  .glass-dark { background: color-mix(in srgb, var(--glass-dark-solid) 88%, transparent); }
+}
+
+/* 2. 用户要求增强对比：加亮边框，让玻璃边界更明确 */
+@media (prefers-contrast: more) {
+  .glass { border-color: rgba(255, 255, 255, 0.96); }
+  .glass-dark { border-color: rgba(255, 255, 255, 0.5); }
+  .glass-table tbody tr:nth-child(odd),
+  .glass-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.5); }
+}
+
+/* 3. 用户要求减少动效：关闭极光漂移 */
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
+/* 4. 浏览器完全不支持 backdrop-filter：退化为高不透明度实心卡片 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: rgba(255, 255, 255, 0.93); }
+  .glass-dark { background: color-mix(in srgb, var(--glass-dark-solid) 93%, transparent); }
+  .glass-table thead th { backdrop-filter: none; }
+}

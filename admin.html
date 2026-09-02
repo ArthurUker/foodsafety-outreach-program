@@ -8,14 +8,25 @@
 
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
+  <!-- glass.css 必须在 base.css 之后：它需要把 body 背景改为透明，让极光壁纸透出 -->
+  <link rel="stylesheet" href="css/glass.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
+  <!-- 玻璃折射滤镜（供 .glass 的 backdrop-filter 引用） -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="lg-refraction" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise" />
+      <feGaussianBlur in="noise" stdDeviation="2" result="blurredNoise" />
+      <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="9" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
   <!-- 登录视图 -->
   <div class="admin-login" id="loginView">
-    <form class="login-card" id="loginForm" autocomplete="on">
+    <form class="login-card glass" id="loginForm" autocomplete="on">
       <div class="login-brand">
         <span class="brand-mark">
           <svg viewBox="0 0 64 64" width="26" height="26" role="img" aria-label="logo">
@@ -154,7 +165,7 @@
 
       <!-- 账号安全 -->
       <section class="admin-panel" data-panel="account">
-        <div class="account-card">
+        <div class="account-card glass">
           <h3>修改登录密码</h3>
           <p class="hint">修改成功后当前所有登录会话会立即失效，需要使用新密码重新登录。</p>
           <form id="passwordForm">
@@ -178,7 +189,7 @@
 
       <!-- 强制改密提示 -->
       <section class="admin-panel" data-panel="force" id="forcePanel">
-        <div class="account-card">
+        <div class="account-card glass">
           <h3>首次登录需修改密码</h3>
           <p class="hint">当前账号被标记为必须修改密码，请先设置新密码后再使用其它功能。</p>
           <button class="btn btn-primary" type="button" id="gotoPasswordBtn">前往修改密码</button>

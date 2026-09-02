@@ -20,7 +20,12 @@ body {
   font-size: var(--fs-base);
   line-height: var(--lh-base);
   color: var(--ink-800);
-  background: var(--surface);
+  /**
+   * 页面底色走变量：glass.css 会把 --page-bg 覆盖为 transparent，
+   * 让 body::before 的极光壁纸透上来。用变量而非硬编码，
+   * 可避免样式表加载顺序变化导致壁纸被纯色盖住。
+   */
+  background: var(--page-bg, var(--surface));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
