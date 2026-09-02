@@ -92,26 +92,37 @@ try {
 
 console.log('\n— 玻璃材质 —');
 /**
- * 玻璃风格最容易翻车的约束：**backdrop-filter 不得嵌套**。
- * 两层玻璃叠加会让滤镜相乘，视觉上迅速糊成一片、文字不可读。
- * 因此外层用 .glass，内层一律用 .glass-panel（不带 backdrop-filter）。
+ * 玻璃风格两条最容易翻车的约束：
+ *
+ * ① backdrop-filter 不得嵌套 —— 滤镜随层级相乘，两层即糊、三层不可读。
+ *    故外层用 .glass，内层一律用 .glass-panel（不带滤镜）。
+ * ② .glass-panel 不得孤立使用 —— 它是「内层面板」，只能出现在 .glass 容器内部。
+ *    直接放在极光上会因缺少模糊与折射而显得扁平，且与整体语言不一致。
  */
 try {
-  const violations = [];
+  const nested = [];
+  const orphan = [];
   for (const key of SECTION_ORDER) {
     const node = SECTION_REGISTRY[key].render(seed.sections[key]?.payload ?? {});
     if (!node) continue;
-    const nested = node.querySelectorAll('.glass .glass, .glass-dark .glass, .glass .glass-dark');
-    if (nested.length > 0) {
-      violations.push(
-        `${key}: ${nested.length} 处玻璃嵌套（${[...new Set([...nested].map((n) => n.className.split(' ')[0]))].join(', ')}）`,
-      );
+
+    const hits = node.querySelectorAll('.glass .glass, .glass-dark .glass, .glass .glass-dark');
+    if (hits.length > 0) nested.push(`${key} × ${hits.length}`);
+
+    // 孤立面板：不在任何玻璃容器（含自带玻璃属性的 .contact-form-wrap）内
+    for (const panel of node.querySelectorAll('.glass-panel')) {
+      if (!panel.closest('.glass') && !panel.closest('.contact-form-wrap')) {
+        orphan.push(`${key} > .${panel.className.split(' ')[0]}`);
+      }
     }
   }
-  if (violations.length > 0) throw new Error(violations.join('；'));
-  report(true, '无玻璃嵌套：内层面板均使用 .glass-panel（避免 backdrop-filter 相乘）');
+
+  if (nested.length > 0) throw new Error(`玻璃嵌套：${nested.join('；')}`);
+  if (orphan.length > 0) throw new Error(`孤立面板（应改用 .glass）：${orphan.join('；')}`);
+
+  report(true, '玻璃结构正确：无嵌套、无孤立内层面板');
 } catch (err) {
-  report(false, `玻璃嵌套检查：${err.message}`);
+  report(false, `玻璃结构检查：${err.message}`);
 }
 
 console.log('\n— 容错 —');
