@@ -14,13 +14,13 @@ function framework(payload) {
       el('strong', { text: fw.core ?? '' }),
       fw.coreDesc ? el('p', { text: fw.coreDesc }) : null,
     ]),
-    el('div.framework-rings', {}, [
+    el('div.framework-rings.glass', {}, [
       el('span.framework-ring-label', { text: '3 大能力体系' }),
       el(
         'div.ring-list',
         {},
         (fw.rings || []).map((ring, i) =>
-          el('span.ring-item', { style: { '--i': String(i) }, text: ring }),
+          el('span.ring-item.glass-panel', { style: { '--i': String(i) }, text: ring }),
         ),
       ),
       el('span.framework-ring-note', { text: '→ 向 N 类校园场景复制推广' }),
@@ -29,7 +29,7 @@ function framework(payload) {
 }
 
 function pillarCard(pillar, index) {
-  return el('article.pillar-card.reveal', { class: `tone-${pillar.tone || 'primary'}`, style: { '--i': String(index) } }, [
+  return el('article.pillar-card.glass.reveal', { class: `tone-${pillar.tone || 'primary'}`, style: { '--i': String(index) } }, [
     el('div.pillar-head', {}, [
       el('span.pillar-code', { text: pillar.code ?? '' }),
       el('h3', { text: pillar.title ?? '' }),

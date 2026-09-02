@@ -2,9 +2,7 @@
  * 后台管理控制台样式（独立于前台视觉体系，走紧凑的工具型布局）。
  */
 
-body {
-  background: var(--ink-50);
-}
+/* 后台同样走极光壁纸 + 玻璃（与前台共用 css/glass.css） */
 
 /* ===== 登录 ===== */
 .admin-login {
@@ -12,21 +10,29 @@ body {
   place-items: center;
   min-height: 100vh;
   padding: var(--sp-6);
-  background:
-    radial-gradient(900px 500px at 20% -10%, rgba(15, 118, 110, 0.16), transparent 60%),
-    radial-gradient(700px 400px at 92% 10%, rgba(37, 99, 235, 0.12), transparent 62%),
-    var(--ink-50);
 }
 
 .login-card {
+  position: relative;
   width: 100%;
   max-width: 400px;
   padding: var(--sp-10);
-  background: var(--surface);
-  border: 1px solid var(--ink-100);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 34%;
+  border-radius: 50% 50% 100% 100% / 0 0 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.login-card > * { position: relative; z-index: 1; }
 
 .login-brand {
   display: flex;
@@ -39,7 +45,11 @@ body {
   width: 46px;
   height: 46px;
   color: var(--brand);
-  background: var(--brand-soft);
+  background: rgba(213, 242, 238, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 4px 12px rgba(15, 118, 110, 0.16);
   border-radius: var(--radius-md);
   display: grid;
   place-items: center;
@@ -71,8 +81,13 @@ body {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: var(--surface);
-  border-bottom: 1px solid var(--ink-100);
+  background: rgba(255, 255, 255, 0.58);
+  -webkit-backdrop-filter: url(#lg-refraction) blur(16px) saturate(180%);
+  backdrop-filter: url(#lg-refraction) blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 8px 30px rgba(40, 60, 100, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .admin-header-inner {
@@ -103,11 +118,12 @@ body {
   border-radius: var(--radius-sm);
 }
 
-.admin-tab:hover { background: var(--ink-100); }
+.admin-tab:hover { background: rgba(255, 255, 255, 0.6); }
 
 .admin-tab.is-active {
   color: var(--brand);
-  background: var(--brand-soft);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   font-weight: 600;
 }
 
@@ -158,12 +174,24 @@ body {
   color: var(--ink-500);
 }
 
+/* JSON 编辑器：长时间阅读与编辑，需更高不透明度 + 玻璃描边 */
 .json-editor {
   min-height: 460px;
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.7;
   tab-size: 2;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.json-editor:focus {
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 /* ===== 表格操作列 ===== */
@@ -187,20 +215,20 @@ body {
 .status-select {
   padding: 5px 8px;
   font-size: var(--fs-xs);
-  border: 1px solid var(--ink-200);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.75);
 }
 
 /* ===== 账号卡片 ===== */
 .account-card {
+  position: relative;
   max-width: 460px;
   padding: var(--sp-8);
-  background: var(--surface);
-  border: 1px solid var(--ink-100);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  overflow: hidden;
 }
+
+.account-card > * { position: relative; z-index: 1; }
 
 .account-card h3 {
   font-size: var(--fs-md);

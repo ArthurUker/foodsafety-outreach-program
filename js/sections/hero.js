@@ -5,7 +5,7 @@
 import { el } from '../core/dom.js';
 
 function metricCard(metric, index) {
-  return el('div.metric-card.reveal', { style: { '--i': String(index) } }, [
+  return el('div.metric-card.glass-panel.reveal', { style: { '--i': String(index) } }, [
     el('div.metric-value', {}, [
       el('span.metric-number', { text: metric.value ?? '' }),
       metric.unit ? el('span.metric-unit', { text: metric.unit }) : null,
@@ -16,7 +16,7 @@ function metricCard(metric, index) {
 }
 
 function panelCard(card) {
-  return el('div.panel-card', {}, [
+  return el('div.panel-card.glass-panel', {}, [
     el('span.panel-tag', { class: card.tone ? `tone-${card.tone}` : '', text: card.tag ?? '' }),
     el('strong.panel-value', { text: card.value ?? '' }),
     el('small.panel-label', { text: card.label ?? '' }),
@@ -25,7 +25,7 @@ function panelCard(card) {
 
 function dashboardPanel(panel) {
   if (!panel) return null;
-  return el('div.hero-panel.reveal', { style: { '--i': '2' } }, [
+  return el('div.hero-panel.glass.reveal', { style: { '--i': '2' } }, [
     el('div.panel-head', {}, [
       el('h3', { text: panel.title ?? '' }),
       el('p', { text: panel.subtitle ?? '' }),

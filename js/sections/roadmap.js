@@ -10,7 +10,7 @@ function phaseCard(phase, index) {
   );
   const deliverables = (phase.deliverables || []).map((item) => el('span.chip', { text: item }));
 
-  return el('article.phase-card.reveal', { style: { '--i': String(index) } }, [
+  return el('article.phase-card.glass.reveal', { style: { '--i': String(index) } }, [
     el('div.phase-head', {}, [
       el('span.phase-no', { text: phase.no ?? '' }),
       el('div', {}, [
@@ -30,7 +30,7 @@ function phaseCard(phase, index) {
 
 export function renderRoadmap(payload) {
   const services = (payload.services || []).map((service, index) =>
-    el('article.service-item.reveal', { style: { '--i': String(index) } }, [
+    el('article.service-item.glass.reveal', { style: { '--i': String(index) } }, [
       el('span.service-index', { text: String(index + 1).padStart(2, '0') }),
       el('div.service-body', {}, [el('h4', { text: service.title ?? '' }), el('p', { text: service.desc ?? '' })]),
     ]),

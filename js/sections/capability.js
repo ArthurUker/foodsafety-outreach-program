@@ -11,7 +11,7 @@ const STATUS_TONE = {
 };
 
 function capabilityItem(item) {
-  return el('li.capability-item', {}, [
+  return el('li.capability-item.glass-panel', {}, [
     el('div.capability-item-head', {}, [
       el('h4', { text: item.name ?? '' }),
       el('span.status-badge', { class: STATUS_TONE[item.status] || 'tone-planned', text: item.status ?? '' }),
@@ -21,7 +21,7 @@ function capabilityItem(item) {
 }
 
 function capabilityGroup(group, index) {
-  return el('article.capability-group.reveal', { style: { '--i': String(index) } }, [
+  return el('article.capability-group.glass.reveal', { style: { '--i': String(index) } }, [
     el('header.capability-group-head', {}, [
       el('h3', { text: group.title ?? '' }),
       group.summary ? el('p', { text: group.summary }) : null,

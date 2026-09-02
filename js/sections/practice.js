@@ -6,7 +6,7 @@ import { el } from '../core/dom.js';
 
 export function renderPractice(payload) {
   const metrics = (payload.metrics || []).map((metric, index) =>
-    el('div.practice-metric.reveal', { style: { '--i': String(index) } }, [
+    el('div.practice-metric.glass.reveal', { style: { '--i': String(index) } }, [
       el('div.practice-metric-value', {}, [
         el('strong', { text: metric.value ?? '' }),
         metric.unit ? el('span', { text: metric.unit }) : null,
@@ -17,7 +17,7 @@ export function renderPractice(payload) {
   );
 
   const highlights = (payload.highlights || []).map((item, index) =>
-    el('article.highlight-card.reveal', { style: { '--i': String(index % 4) } }, [
+    el('article.highlight-card.glass.reveal', { style: { '--i': String(index % 4) } }, [
       el('h4', { text: item.title ?? '' }),
       el('p', { text: item.desc ?? '' }),
     ]),

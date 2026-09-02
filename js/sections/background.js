@@ -28,7 +28,7 @@ export function renderBackground(payload) {
         payload.intro ? el('p', { text: payload.intro }) : null,
       ]),
       el('div.grid.grid-4', {}, points),
-      stats.length > 0 ? el('div.stat-strip.reveal', {}, stats) : null,
+      stats.length > 0 ? el('div.stat-strip.glass.reveal', {}, stats) : null,
     ]),
   ]);
 }

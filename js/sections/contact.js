@@ -18,7 +18,7 @@ function channelList(channels) {
     'div.contact-list',
     {},
     CHANNEL_FIELDS.filter(({ key }) => channels[key]).map(({ key, label }) =>
-      el('div.contact-item', {}, [el('h3', { text: label }), el('p', { text: channels[key] })]),
+      el('div.contact-item.glass-panel', {}, [el('h3', { text: label }), el('p', { text: channels[key] })]),
     ),
   );
 }
@@ -30,7 +30,7 @@ function faqList(items) {
     'div.faq',
     {},
     items.map((item, index) =>
-      el('details.faq-item', { class: index === 0 ? 'is-open' : '', attrs: index === 0 ? { open: true } : {} }, [
+      el('details.faq-item.glass', { class: index === 0 ? 'is-open' : '', attrs: index === 0 ? { open: true } : {} }, [
         el('summary.faq-q', { text: item.q ?? '' }),
         el('div.faq-a', {}, [el('p', { text: item.a ?? '' })]),
       ]),
