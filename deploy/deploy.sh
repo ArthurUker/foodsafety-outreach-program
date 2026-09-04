@@ -32,6 +32,12 @@ die()  { echo -e "\033[1;31m[FATAL] $*\033[0m" >&2; exit 1; }
 
 SYSTEM_NAME="${SYSTEM_NAME:-foodsafety-outreach}"
 APP_NAME="${APP_NAME:-${SYSTEM_NAME}-api}"
+# 数据盘（可选）：DATA_ROOT 非空且 conf 未显式指定 REPO_ROOT/LOG_DIR 时，二者默认落数据盘
+DATA_ROOT="${DATA_ROOT:-}"
+if [[ -n "$DATA_ROOT" ]]; then
+  REPO_ROOT="${REPO_ROOT:-${DATA_ROOT}/${SYSTEM_NAME}}"
+  LOG_DIR="${LOG_DIR:-${DATA_ROOT}/logs/${SYSTEM_NAME}}"
+fi
 REPO_ROOT="${REPO_ROOT:-/opt/${SYSTEM_NAME}}"
 LOG_DIR="${LOG_DIR:-/var/log/${SYSTEM_NAME}}"
 API_PORT="${API_PORT:-3000}"
@@ -45,6 +51,61 @@ PG_USER="${PG_USER:-foodsafety}"
 INSTALL_RUNTIME="${INSTALL_RUNTIME:-true}"
 SEED_ON_FIRST_DEPLOY="${SEED_ON_FIRST_DEPLOY:-true}"
 SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-admin}"
+
+# DOMAIN 填写守卫：必须是裸域名（Caddy 据此自动签发 HTTPS 证书）
+if [[ -n "${DOMAIN:-}" ]]; then
+  [[ "$DOMAIN" == *"://"* ]] && die "DOMAIN 只填裸域名（如 outreach.example.com），不要带 http(s):// 前缀"
+  [[ "$DOMAIN" == "example.com" || "$DOMAIN" == *".example.com" ]] && die "DOMAIN 仍是示例占位符，请先在适配文件中改成真实子域名"
+  [[ -n "${TLS_EMAIL:-}" ]] || warn "未填 TLS_EMAIL，Let's Encrypt 证书临期时收不到邮件提醒"
+fi
+
+# 数据盘守卫：配置了 DATA_ROOT 时校验其为独立挂载点，防止数据静默写回系统盘
+if [[ -n "${DATA_ROOT:-}" ]]; then
+  DATA_TARGET="$(findmnt -n -o TARGET -T "$DATA_ROOT" 2>/dev/null || echo '/')"
+  [[ "$DATA_TARGET" == "/" ]] && die "DATA_ROOT=${DATA_ROOT} 仍属系统盘（/）。请先挂载数据盘到该路径，或将 DATA_ROOT 留空改用系统盘"
+fi
+
+# 重复部署识别：本系统的 Caddy 站点片段已存在 = 之前部署过，端口冲突判断需放行自身
+IS_REDEPLOY=false
+[[ -f "/etc/caddy/sites/${SYSTEM_NAME}.caddy" ]] && IS_REDEPLOY=true
+
+# 端口冲突预检（fail-fast，避免部署到一半才发现端口被占）
+[[ "$API_PORT" =~ ^[0-9]+$ ]] || die "API_PORT 必须是数字"
+if ss -ltn 2>/dev/null | awk '{print $4}' | grep -qE "(:|\])${API_PORT}$"; then
+  if [[ "$IS_REDEPLOY" == "true" ]]; then
+    warn "API 端口 ${API_PORT} 已被监听（应为既有部署的 ${APP_NAME}），继续重复部署"
+  else
+    die "后端端口 ${API_PORT} 已被其它进程占用，请在适配文件中更换 API_PORT（排查：ss -ltnp | grep :${API_PORT}）"
+  fi
+fi
+if [[ -z "${DOMAIN:-}" ]]; then
+  [[ "$FRONTEND_PORT" =~ ^[0-9]+$ ]] || die "FRONTEND_PORT 必须是数字"
+  if ss -ltn 2>/dev/null | awk '{print $4}' | grep -qE "(:|\])${FRONTEND_PORT}$"; then
+    if [[ "$IS_REDEPLOY" == "true" ]]; then
+      warn "前端端口 ${FRONTEND_PORT} 已被监听（应为既有部署的 Caddy 站点），继续重复部署"
+    else
+      die "前端端口 ${FRONTEND_PORT} 已被其它站点占用，请在适配文件中更换 FRONTEND_PORT（排查：ss -ltnp | grep :${FRONTEND_PORT}）"
+    fi
+  fi
+fi
+
+# 域名模式：80/443 必须空闲或由 Caddy 监听（ACME 签证书与 HTTP→HTTPS 跳转都需要 80；
+# 若被 Nginx 等其它 Web 服务器占用，Caddy 无法绑定，站点与证书都会失败）
+if [[ -n "${DOMAIN:-}" ]]; then
+  occupied80443="$(ss -ltn 2>/dev/null | awk '{print $4}' | grep -E '(:|\])(80|443)$' || true)"
+  if [[ -n "$occupied80443" ]]; then
+    procs="$(ss -ltnp 2>/dev/null | grep -E '(:|\])(80|443) ' | grep -oE '\("[^"]+"' | sort -u | tr -d '("' | tr '\n' ' ' || true)"
+    if [[ "${procs}" != *caddy* ]]; then
+      die "域名模式需要 80/443 端口，但已被其它进程监听（${procs:-未知进程}）。" \
+        "若为 Nginx 承载的其它站点，建议改用该 Nginx 托管本站；若确认弃用，停止该服务后重跑。排查：ss -ltnp | grep -E ':(80|443) '"
+    fi
+  fi
+fi
+
+# 域名冲突预检：同机其它 Caddy 站点片段已占用该域名时中止（Caddy 加载会直接报错）
+if [[ -n "${DOMAIN:-}" && -d /etc/caddy/sites ]] && grep -rqs -- "$DOMAIN" /etc/caddy/sites/*.caddy; then
+  die "域名 ${DOMAIN} 已存在于 /etc/caddy/sites/ 下的站点片段，请确认或更换域名"
+fi
 
 # =========================================================
 # 1. 安装运行时
@@ -124,8 +185,35 @@ fi
 su - postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${PG_USER}'\"" | grep -q 1 \
   || su - postgres -c "psql -c \"CREATE ROLE ${PG_USER} LOGIN PASSWORD '${PG_PASSWORD}';\""
 
+# 数据盘模式：本站数据库通过独立表空间整体落数据盘（主集群与其余数据库不受影响）
+TS_FLAG=""
+if [[ -n "${DATA_ROOT:-}" ]]; then
+  PG_TS_DIR="${DATA_ROOT}/pg/${SYSTEM_NAME}"
+  PG_TS_NAME="ts_${SYSTEM_NAME//-/_}"
+  mkdir -p "$PG_TS_DIR"
+  chown postgres:postgres "$PG_TS_DIR"
+  chmod 700 "$PG_TS_DIR"
+  # Ubuntu 的 AppArmor 默认限制 postgres 只写已知路径，放行数据盘表空间目录
+  PG_AA_LOCAL="/etc/apparmor.d/local/usr.lib.postgresql.postgres"
+  if [[ -d /etc/apparmor.d/local ]]; then
+    if ! grep -qs "permit DATA_ROOT tablespace ${PG_TS_DIR}" "$PG_AA_LOCAL" 2>/dev/null; then
+      { echo "# permit DATA_ROOT tablespace ${PG_TS_DIR}"
+        echo "${PG_TS_DIR}/ r,"
+        echo "${PG_TS_DIR}/** rwk,"
+      } >> "$PG_AA_LOCAL"
+      systemctl reload apparmor 2>/dev/null || true
+    fi
+  fi
+  if ! su - postgres -c "psql -tAc \"SELECT 1 FROM pg_tablespace WHERE spcname='${PG_TS_NAME}'\"" | grep -q 1; then
+    su - postgres -c "psql -c \"CREATE TABLESPACE ${PG_TS_NAME} OWNER postgres LOCATION '${PG_TS_DIR}';\"" \
+      || die "创建表空间 ${PG_TS_NAME}（${PG_TS_DIR}）失败：多为 AppArmor 拦截或目录权限问题，排查：journalctl -u postgresql -n 30"
+  fi
+  TS_FLAG="-D ${PG_TS_NAME}"
+  log "本站数据库表空间：${PG_TS_NAME} → ${PG_TS_DIR}（数据盘）"
+fi
+
 su - postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${PG_DB_NAME}'\"" | grep -q 1 \
-  || su - postgres -c "createdb -O ${PG_USER} ${PG_DB_NAME}"
+  || su - postgres -c "createdb -O ${PG_USER} ${TS_FLAG} ${PG_DB_NAME}"
 
 export DATABASE_URL="postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB_NAME}?schema=public"
 
@@ -142,9 +230,13 @@ if [[ "$FIRST_DEPLOY" == "true" ]]; then
   [[ -n "${SEED_ADMIN_PASSWORD:-}" ]] || SEED_ADMIN_PASSWORD="$(openssl rand -base64 18 | tr -d '/+=' | head -c 14)"
 
   if [[ -z "${CORS_ORIGIN:-}" ]]; then
-    PUBLIC_IP="$(curl -s --max-time 5 ifconfig.me || true)"
-    CORS_ORIGIN="http://${PUBLIC_IP}:${FRONTEND_PORT}"
-    [[ -n "$PUBLIC_IP" ]] || warn "未能获取公网 IP，请手动修正 CORS_ORIGIN"
+    if [[ -n "${DOMAIN:-}" ]]; then
+      CORS_ORIGIN="https://${DOMAIN}"
+    else
+      PUBLIC_IP="$(curl -s --max-time 5 ifconfig.me || true)"
+      CORS_ORIGIN="http://${PUBLIC_IP}:${FRONTEND_PORT}"
+      [[ -n "$PUBLIC_IP" ]] || warn "未能获取公网 IP，请手动修正 CORS_ORIGIN"
+    fi
   fi
 
   cat > "$ENV_FILE" <<EOF
@@ -200,6 +292,8 @@ fi
 log "步骤 7/9：构建前端静态资源到 dist/"
 cd "$REPO_ROOT"
 sudo -u "$SYSTEM_NAME" node scripts/build-static.js
+# 放行 caddy 用户读取静态资源（数据盘挂载的权限策略可能与 /opt 默认不同）
+chmod -R a+rX "$REPO_ROOT/dist"
 
 # =========================================================
 # 8. systemd 单元
@@ -292,15 +386,29 @@ if curl -fsS "http://127.0.0.1:${API_PORT}/health" >/dev/null; then
 else
   warn "后端健康检查未通过，请查看：journalctl -u ${APP_NAME} -n 50"
 fi
-if curl -fsS -o /dev/null -w '%{http_code}\n' "http://127.0.0.1:${FRONTEND_PORT}/" >/dev/null; then
-  echo "✅ Caddy 前端可访问（:${FRONTEND_PORT}）"
+if [[ -n "${DOMAIN:-}" ]]; then
+  # 域名模式：Caddy 监听 80/443，本地用 Host 头探测（HTTP→HTTPS 308 属预期）
+  if curl -fsS -o /dev/null -H "Host: ${DOMAIN}" "http://127.0.0.1:80/" 2>/dev/null; then
+    echo "✅ Caddy 前端可访问（https://${DOMAIN}）"
+  else
+    warn "Caddy 前端未通过检查，请查看：journalctl -u caddy -n 50"
+  fi
 else
-  warn "Caddy 前端未通过检查，请查看：journalctl -u caddy -n 50"
+  if curl -fsS -o /dev/null -w '%{http_code}\n' "http://127.0.0.1:${FRONTEND_PORT}/" >/dev/null; then
+    echo "✅ Caddy 前端可访问（:${FRONTEND_PORT}）"
+  else
+    warn "Caddy 前端未通过检查，请查看：journalctl -u caddy -n 50"
+  fi
 fi
 
 echo -e "\n================ 部署完成 ================"
-echo "站点地址：http://${DOMAIN:-<服务器公网IP>}${DOMAIN:+$([ -n "$DOMAIN" ] && echo '' || echo ":${FRONTEND_PORT}")}"
-echo "管理后台：http://${DOMAIN:-<服务器公网IP>}${DOMAIN:+$([ -n "$DOMAIN" ] && echo '' || echo ":${FRONTEND_PORT}")}/admin.html"
+if [[ -n "${DOMAIN:-}" ]]; then
+  SITE_URL="https://${DOMAIN}"
+else
+  SITE_URL="http://<服务器公网IP>:${FRONTEND_PORT}"
+fi
+echo "站点地址：${SITE_URL}"
+echo "管理后台：${SITE_URL}/admin.html"
 echo "服务管理：systemctl status ${APP_NAME}"
 if [[ "$FIRST_DEPLOY" == "true" ]]; then
   echo "初始管理员：${SEED_ADMIN_USERNAME}"
