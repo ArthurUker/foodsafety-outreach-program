@@ -18,7 +18,8 @@
     "db:studio": "npm --prefix backend run db:studio",
     "seed": "npm --prefix backend run seed",
     "seed:content": "npm --prefix backend run seed:content",
-    "smoke": "node scripts/smoke-render.mjs"
+    "smoke": "node scripts/smoke-render.mjs",
+    "dingtalk:test": "node scripts/test-dingtalk.mjs"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

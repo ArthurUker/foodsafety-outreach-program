@@ -10,6 +10,7 @@ import { sanitizeText, sanitizeMultilineText, parsePagination } from '../lib/val
 import { isPhone, isEmail } from '../lib/securityGuards.js';
 import { writeAuditLog } from '../lib/auditLog.js';
 import { rateLimitBy, requestSafetyGuard } from '../middleware/validationMiddleware.js';
+import { notifyInquiry } from '../lib/dingtalkNotify.js';
 
 const VALID_STATUS = ['new', 'processing', 'closed'];
 
@@ -93,6 +94,8 @@ export function createInquiryRoutes({ prisma, authenticateUser, authorizeRoles }
           details: { name, org: org || null },
         });
         res.status(201).json({ success: true, id: created.id, message: '提交成功，我们会尽快与您联系。' });
+        // 钉钉群通知（异步旁路：失败仅记录日志，不影响已落库留言与本次响应）
+        notifyInquiry({ name, org, phone, email, message, createdAt: created.createdAt });
       })
       .catch((err) => {
         console.error('[inquiry.create]', err.message);

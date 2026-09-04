@@ -254,6 +254,9 @@ RATE_LIMIT_MAX_REQUESTS=1000
 RATE_LIMIT_WINDOW_MS=60000
 BODY_LIMIT=2mb
 AUTO_SEED_CONTENT=true
+# 钉钉群机器人通知（可选）：部署后在 backend/.env 填入 Webhook，再 systemctl restart ${APP_NAME} 生效
+DINGTALK_WEBHOOK=${DINGTALK_WEBHOOK:-}
+DINGTALK_SECRET=${DINGTALK_SECRET:-}
 EOF
   chmod 600 "$ENV_FILE"
   chown "$SYSTEM_NAME":"$SYSTEM_NAME" "$ENV_FILE"
@@ -262,6 +265,8 @@ else
   grep -q '^JWT_EXPIRE=' "$ENV_FILE" || echo 'JWT_EXPIRE=8h' >> "$ENV_FILE"
   grep -q '^BODY_LIMIT=' "$ENV_FILE" || echo 'BODY_LIMIT=2mb' >> "$ENV_FILE"
   grep -q '^AUTO_SEED_CONTENT=' "$ENV_FILE" || echo 'AUTO_SEED_CONTENT=true' >> "$ENV_FILE"
+  grep -q '^DINGTALK_WEBHOOK=' "$ENV_FILE" || echo 'DINGTALK_WEBHOOK=' >> "$ENV_FILE"
+  grep -q '^DINGTALK_SECRET=' "$ENV_FILE" || echo 'DINGTALK_SECRET=' >> "$ENV_FILE"
   sed -i "s#^DATABASE_URL=.*#DATABASE_URL=${DATABASE_URL}#" "$ENV_FILE"
   CORS_ORIGIN="$(grep '^CORS_ORIGIN=' "$ENV_FILE" | cut -d= -f2- || true)"
 fi
