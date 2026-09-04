@@ -6,6 +6,7 @@
 import { el } from '../core/dom.js';
 
 const CHANNEL_FIELDS = [
+  { key: 'person', label: '联系人' },
   { key: 'phone', label: '联系电话' },
   { key: 'email', label: '电子邮箱' },
   { key: 'address', label: '联系单位' },
