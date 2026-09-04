@@ -20,7 +20,7 @@
 | 内容 | 文案硬编码在 HTML 中 | 内容落库，后台可编辑，改文案无需改码 |
 | 前端 | 全局脚本、多段补丁式 IIFE | 原生 ES Module 分层，章节注册中心数据驱动渲染 |
 | 表单 | 纯前端演示，不落库 | 提交落库，后台可处理、可导出 |
-| 部署 | 手动拷贝文件 | `deploy/deploy.sh` 一键部署（Caddy + systemd） |
+| 部署 | 手动拷贝文件 | `deploy/deploy.sh` 一键部署（Caddy 自动 HTTPS + systemd，支持整套落数据盘） |
 | 安全 | 无 | JWT + 令牌吊销、限流、锁定、审计日志、输入净化 |
 
 ### 方案叙事主线
@@ -49,7 +49,7 @@
 
 | 层 | 技术 | 说明 |
 | --- | --- | --- |
-| 后端运行时 | Node.js 20、Express 4（ESM） | 入口 `backend/server.js`，仅监听 `127.0.0.1` |
+| 后端运行时 | Node.js 20、Express 4（ESM） | 入口 `backend/server.js`，端口经 `PORT` 配置（腾讯云生产为 3100） |
 | ORM / 数据库 | Prisma 5 + PostgreSQL | `backend/prisma/schema.prisma` |
 | 认证 | jsonwebtoken 9 + bcryptjs 2 | 无状态 JWT + 令牌吊销表，bcrypt 存储 |
 | 前端 | 原生 ES Module（无打包器） | 浏览器直载，`js/**` 分层 |
@@ -93,10 +93,12 @@ foodsafety-outreach-program/
 ├── css/                        # tokens / glass / base / layout / components / sections / admin
 ├── scripts/
 │   ├── build-static.js         # 构建 dist/
-│   └── dev-server.js           # 本地静态预览（零依赖）
+│   ├── dev-server.js           # 本地静态预览（零依赖）
+│   └── smoke-render.mjs        # 章节渲染冒烟测试（npm run smoke）
 ├── deploy/
-│   ├── deploy.sh               # 一键部署
-│   └── deploy.example.conf     # 部署适配文件样例
+│   ├── deploy.sh               # 一键部署（通用脚本，内置环境自适应与预检）
+│   ├── deploy.example.conf     # 部署适配文件样例（复制后按服务器实际修改）
+│   └── deploy.tencent-cvm.conf # 腾讯云 CVM 生产适配（子域名 HTTPS + 整套落数据盘）
 ├── docs/                       # 项目文档
 └── legacy/                     # v1.0 遗留文件（仅供参考，不参与运行）
 ```
@@ -168,7 +170,7 @@ npm run seed:content   # 仅重新导入章节内容
 
 ## 6. API 概览
 
-基础路径 `/api`，生产由 Caddy 同域反代到 `127.0.0.1:3000`。受保护接口需 `Authorization: Bearer <JWT>`。
+基础路径 `/api`，生产由 Caddy 同域反代到 `127.0.0.1:3100`。受保护接口需 `Authorization: Bearer <JWT>`。
 
 ### 公开接口
 
@@ -203,33 +205,61 @@ npm run seed:content   # 仅重新导入章节内容
 
 ## 7. 部署
 
+### 7.1 通用流程（任意服务器）
+
 ```bash
-# 前置：安全组放行 TCP 22 与 FRONTEND_PORT（启用 HTTPS 时再放 443）
 cp deploy/deploy.example.conf deploy/deploy.conf
-# 按实际服务器参数修改 deploy/deploy.conf
+# 按实际服务器参数修改 deploy/deploy.conf（系统名 / 端口 / 域名 / 数据库 / 数据盘）
 sudo bash deploy/deploy.sh deploy/deploy.conf
 ```
 
+脚本为「通用流程 + 适配文件」解耦设计，内置环境自适应与 fail-fast 预检：
+
+- Node / PostgreSQL / Caddy **缺啥装啥、已装则复用**（支持 Ubuntu 22.04 全新环境）
+- **域名模式**（`DOMAIN` 非空）：Caddy 自动申请 Let's Encrypt 证书，`CORS_ORIGIN` 自动生成 `https://<DOMAIN>`
+- **数据盘模式**（`DATA_ROOT` 非空）：代码、日志、独立 PG 表空间全部落数据盘；`findmnt` 校验挂载，自动写入 AppArmor 放行规则
+- **部署前预检**：API/前端端口占用、域名与既有站点冲突、数据盘挂载状态，重复部署自动识别放行自身
+
+### 7.2 生产实例（腾讯云 CVM · 111.231.166.161）
+
+```bash
+git clone git@github.com:ArthurUker/foodsafety-outreach-program.git /tmp/fsop-deploy
+cd /tmp/fsop-deploy
+sudo bash deploy/deploy.sh deploy/deploy.tencent-cvm.conf
+```
+
+适配要点（详见 `deploy/deploy.tencent-cvm.conf` 内注释）：
+
+| 项 | 值 |
+| --- | --- |
+| 域名 | `foodsafety.digifluidic.com`（DNS A 记录 → 111.231.166.161，Caddy 自动 HTTPS） |
+| 整套落盘 | `/mnt/datadisk0/foodsafety-outreach`（代码 + dist）、`/mnt/datadisk0/logs/foodsafety-outreach`（日志）、`/mnt/datadisk0/pg/foodsafety-outreach`（独立表空间），**系统盘零增量** |
+| 后端端口 | `3100`（仅内网，与同机其它业务错开） |
+| 数据库 | 独立库 `foodsafety_outreach` + 角色 `foodsafety`，复用同机已有 PostgreSQL 14 实例，不影响其它业务 |
+| 初始管理员 | `admin`，密码在**首次部署**结束时输出一次，登录后台后立即修改 |
+
 部署后拓扑：
 
-```
-浏览器 → Caddy(:8080) ─┬─ 静态托管 dist/
-                       └─ 反代 /api/* → Express(127.0.0.1:3000) → PostgreSQL
+```text
+浏览器 → Caddy(:80/:443, 自动 HTTPS) ─┬─ 静态托管 dist/
+                                      └─ 反代 /api/* → Express(127.0.0.1:3100) → PostgreSQL 14（表空间在数据盘）
 ```
 
-运维命令：
+### 7.3 运维命令
 
 ```bash
-systemctl status foodsafety-outreach-api      # 后端状态
-journalctl -u foodsafety-outreach-api -f      # 实时日志
-systemctl reload caddy                        # 重载反代配置
-curl http://127.0.0.1:3000/health             # 健康检查
+systemctl status foodsafety-outreach-api       # 后端状态
+journalctl -u foodsafety-outreach-api -n 50    # 近期日志
+ls /mnt/datadisk0/logs/foodsafety-outreach     # 落盘日志（app.out.log / app.err.log）
+systemctl reload caddy                         # 重载反代配置
+curl http://127.0.0.1:3100/health              # 健康检查
 ```
 
-⚠️ **改完前端源码必须重建 `dist/`**（生产 Caddy 只 serve `dist/`，不读源码）：
+⚠️ **改完源码必须同步到线上**（生产 Caddy 只 serve `dist/`，不读源码），在服务器仓库目录（`/mnt/datadisk0/foodsafety-outreach`）执行：
 
 ```bash
-node scripts/build-static.js
+git pull && node scripts/build-static.js      # 前端：重建 dist/ 即时生效
+systemctl restart foodsafety-outreach-api     # 后端：重启服务
 ```
 
 ---
