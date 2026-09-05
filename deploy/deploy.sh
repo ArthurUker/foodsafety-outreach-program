@@ -164,6 +164,8 @@ if [[ ! -d "$REPO_ROOT/.git" ]]; then
   git clone --depth 1 --branch "$DEPLOY_BRANCH" "$REPO_URL" "$REPO_ROOT"
 else
   cd "$REPO_ROOT"
+  # 仓库在首次部署后归属部署用户，root 执行 git 操作需显式声明 safe.directory
+  git config --global --add safe.directory "$REPO_ROOT" 2>/dev/null || true
   git fetch origin "$DEPLOY_BRANCH"
   git reset --hard "origin/$DEPLOY_BRANCH"
   # 仅清理未跟踪文件，保留 .env（部署生成，不入库）
