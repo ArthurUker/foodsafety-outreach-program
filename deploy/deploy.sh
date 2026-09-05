@@ -288,11 +288,22 @@ cd "$REPO_ROOT/backend"
 sudo -u "$SYSTEM_NAME" npm ci --omit=dev || sudo -u "$SYSTEM_NAME" npm install --omit=dev
 sudo -u "$SYSTEM_NAME" npx prisma generate
 
-if sudo -u "$SYSTEM_NAME" npx prisma migrate deploy; then
-  echo "✅ 迁移已应用"
-else
+# 注意：仓库无 prisma/migrations 时 migrate deploy 会"空成功"（No migration found 且退出码 0），
+# 不能据此判定表已就绪 —— 必须检测该情形并回退到 db push（2026-09-05 线上事故根因）。
+MIGRATE_OUTPUT="$(sudo -u "$SYSTEM_NAME" npx prisma migrate deploy 2>&1)" || true
+if echo "$MIGRATE_OUTPUT" | grep -q "No migration found"; then
+  log "仓库未包含 migrations 目录，使用 prisma db push 同步表结构"
+  sudo -u "$SYSTEM_NAME" npx prisma db push --skip-generate \
+    || die "prisma db push 失败，请检查 DATABASE_URL 与数据库连接"
+  echo "✅ 数据库结构已同步（db push）"
+elif echo "$MIGRATE_OUTPUT" | grep -qiE "error|failed"; then
+  warn "$MIGRATE_OUTPUT"
   warn "migrate deploy 失败，回退到 prisma db push（首次部署常见）"
-  sudo -u "$SYSTEM_NAME" npx prisma db push --skip-generate
+  sudo -u "$SYSTEM_NAME" npx prisma db push --skip-generate \
+    || die "prisma db push 失败，请检查 DATABASE_URL 与数据库连接"
+else
+  echo "$MIGRATE_OUTPUT" | tail -3
+  echo "✅ 迁移已应用"
 fi
 
 if [[ "$FIRST_DEPLOY" == "true" && "$SEED_ON_FIRST_DEPLOY" == "true" ]]; then
