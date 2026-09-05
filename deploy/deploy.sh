@@ -382,6 +382,10 @@ ${SITE_ADDR} {${TLS_LINE}
         X-Frame-Options "SAMEORIGIN"
     }
 
+    # HTML/JS/CSS 强制 no-cache：部署新版后浏览器不再使用启发式缓存的旧文件
+    @staticAssets path *.js *.css *.mjs *.html
+    header @staticAssets Cache-Control "no-cache, must-revalidate"
+
     # /api/* 必须优先反代，否则会被 try_files 吞成 SPA HTML
     handle /api/* {
         request_body { max_size 2MB }
