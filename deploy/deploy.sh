@@ -102,9 +102,13 @@ if [[ -n "${DOMAIN:-}" ]]; then
   fi
 fi
 
-# 域名冲突预检：同机其它 Caddy 站点片段已占用该域名时中止（Caddy 加载会直接报错）
-if [[ -n "${DOMAIN:-}" && -d /etc/caddy/sites ]] && grep -rqs -- "$DOMAIN" /etc/caddy/sites/*.caddy; then
-  die "域名 ${DOMAIN} 已存在于 /etc/caddy/sites/ 下的站点片段，请确认或更换域名"
+# 域名冲突预检：同机其它 Caddy 站点片段已占用该域名时中止（Caddy 加载会直接报错）。
+# 排除本系统自身片段 —— 重复部署时它必然包含本域名。
+if [[ -n "${DOMAIN:-}" && -d /etc/caddy/sites ]]; then
+  CONFLICT_FILES="$(grep -rls -- "$DOMAIN" /etc/caddy/sites/*.caddy 2>/dev/null | grep -v "/${SYSTEM_NAME}.caddy$" || true)"
+  if [[ -n "$CONFLICT_FILES" ]]; then
+    die "域名 ${DOMAIN} 已被其它站点片段占用（${CONFLICT_FILES//$'\n'/、}），请确认或更换域名"
+  fi
 fi
 
 # =========================================================
