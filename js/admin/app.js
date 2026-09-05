@@ -112,7 +112,18 @@ async function enterAdmin() {
     const res = await api.auth('GET', '/auth/me');
     state.user = res.user;
   } catch (err) {
-    if (handleUnauthorized(err)) return;
+    if (handleUnauthorized(err)) {
+      // 登录刚成功却被判 401：几乎总是浏览器侧问题（站点存储被禁 / 扩展改写请求头）
+      const loginNoteNode = document.getElementById('loginNote');
+      if (loginNoteNode) {
+        note(
+          loginNoteNode,
+          '会话校验失败（401）：通常是浏览器禁止本站存储数据，或扩展拦截了请求。请用无痕窗口重试，或在浏览器设置中允许本站存储后重新登录。',
+          'error',
+        );
+      }
+      return;
+    }
   }
 
   const label = document.getElementById('adminUserLabel');

@@ -73,12 +73,21 @@ export function getToken() {
 }
 
 export function setToken(token, remember = false) {
+  // 双存储互为兜底：主存储被浏览器禁用（隐私扩展/站点数据封锁）时降级另一侧，
+  // 避免 setItem 静默失败导致令牌丢失、登录后立即 401 弹回。
+  const primary = remember ? 'localStorage' : 'sessionStorage';
+  const fallback = remember ? 'sessionStorage' : 'localStorage';
   try {
-    sessionStorage.setItem('cfsg_admin_token', token);
-    if (remember) localStorage.setItem('cfsg_admin_token', token);
-    else localStorage.removeItem('cfsg_admin_token');
+    window[primary].setItem('cfsg_admin_token', token);
+    window[fallback].removeItem('cfsg_admin_token');
+    return;
   } catch {
-    /* 隐私模式下忽略 */
+    /* 主存储不可用，降级 */
+  }
+  try {
+    window[fallback].setItem('cfsg_admin_token', token);
+  } catch {
+    /* 双存储均被禁用：令牌仅存活于当前内存，下次请求将 401 */
   }
 }
 
