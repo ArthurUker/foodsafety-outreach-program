@@ -63,18 +63,32 @@ async function request(method, path, { body, headers = {}, timeout = DEFAULT_TIM
   }
 }
 
-/** 读取鉴权令牌（后台使用；前台公开接口无需携带） */
-export function getToken() {
+/** 令牌的内存镜像：页面存续期内的权威来源，浏览器禁用站点存储时依然可用 */
+let memoryToken = '';
+
+function readStoredToken() {
   try {
-    return sessionStorage.getItem('cfsg_admin_token') || localStorage.getItem('cfsg_admin_token') || '';
+    const t = sessionStorage.getItem('cfsg_admin_token');
+    if (t) return t;
+  } catch {
+    /* 存储不可用 */
+  }
+  try {
+    return localStorage.getItem('cfsg_admin_token') || '';
   } catch {
     return '';
   }
 }
 
+/** 读取鉴权令牌（后台使用；前台公开接口无需携带） */
+export function getToken() {
+  return memoryToken || readStoredToken();
+}
+
 export function setToken(token, remember = false) {
-  // 双存储互为兜底：主存储被浏览器禁用（隐私扩展/站点数据封锁）时降级另一侧，
-  // 避免 setItem 静默失败导致令牌丢失、登录后立即 401 弹回。
+  memoryToken = token;
+  // 双存储互为兜底：主存储被浏览器禁用（隐私扩展/站点数据封锁）时降级另一侧。
+  // 即使双存储均不可用，内存镜像也保证本次页面会话内登录态可用。
   const primary = remember ? 'localStorage' : 'sessionStorage';
   const fallback = remember ? 'sessionStorage' : 'localStorage';
   try {
@@ -87,13 +101,18 @@ export function setToken(token, remember = false) {
   try {
     window[fallback].setItem('cfsg_admin_token', token);
   } catch {
-    /* 双存储均被禁用：令牌仅存活于当前内存，下次请求将 401 */
+    /* 双存储均被禁用：仅内存镜像承载，页面刷新前有效 */
   }
 }
 
 export function clearToken() {
+  memoryToken = '';
   try {
     sessionStorage.removeItem('cfsg_admin_token');
+  } catch {
+    /* 忽略 */
+  }
+  try {
     localStorage.removeItem('cfsg_admin_token');
   } catch {
     /* 忽略 */
