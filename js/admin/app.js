@@ -30,10 +30,27 @@ function formatTime(value) {
   return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString('zh-CN', { hour12: false });
 }
 
-function handleUnauthorized(err) {
+/**
+ * 统一 401 处理：清令牌并回到登录视图。
+ * @param {Error} err 带 status 字段的请求错误
+ * @param {string} source 触发请求的描述（如 'GET /api/inquiries'），用于写回提示区
+ *
+ * 此前各调用点静默弹回登录页，「登录成功。」提示残留、真实原因（缺令牌/签名无效/
+ * 令牌被吊销/账号被停用）全部丢失，线上无从排查 —— 必须把服务端原因写回登录提示。
+ */
+function handleUnauthorized(err, source = '请求') {
   if (err?.status === 401) {
     clearToken();
     showLogin();
+    console.warn(`[admin] ${source} 返回 401：`, err?.message || '未认证');
+    const loginNoteNode = document.getElementById('loginNote');
+    if (loginNoteNode) {
+      note(
+        loginNoteNode,
+        `登录态已失效（${source} 返回 401）：${err?.message || '未认证'}。请重新登录；若刚登录成功即出现此提示，请截图反馈。`,
+        'error',
+      );
+    }
     return true;
   }
   return false;
@@ -112,18 +129,19 @@ async function enterAdmin() {
     const res = await api.auth('GET', '/auth/me');
     state.user = res.user;
   } catch (err) {
-    if (handleUnauthorized(err)) {
+    if (handleUnauthorized(err, 'GET /api/auth/me')) {
       // 登录刚成功却被判 401：几乎总是浏览器侧问题（站点存储被禁 / 扩展改写请求头）
       const loginNoteNode = document.getElementById('loginNote');
       if (loginNoteNode) {
         note(
           loginNoteNode,
-          '会话校验失败（401）：通常是浏览器禁止本站存储数据，或扩展拦截了请求。请用无痕窗口重试，或在浏览器设置中允许本站存储后重新登录。',
+          `会话校验失败（401）：${err.message || '未认证'}。通常是浏览器禁止本站存储数据，或请求被拦截。请用无痕窗口重试，或在浏览器设置中允许本站存储后重新登录。`,
           'error',
         );
       }
       return;
     }
+    console.warn('[admin] /api/auth/me 初始化失败（非 401）：', err);
   }
 
   const label = document.getElementById('adminUserLabel');
@@ -173,7 +191,9 @@ async function loadSections() {
       selectSection(state.sections[0].key);
     }
   } catch (err) {
-    if (!handleUnauthorized(err)) note(contentNote, `载入章节失败：${err.message}`, 'error');
+    if (!handleUnauthorized(err, 'GET /api/content')) {
+      note(contentNote, `载入章节失败：${err.message}`, 'error');
+    }
   }
 }
 
@@ -214,7 +234,7 @@ async function saveSection() {
     await loadSections();
     selectSection(state.currentKey);
   } catch (err) {
-    if (handleUnauthorized(err)) return;
+    if (handleUnauthorized(err, `PUT /api/content/${state.currentKey}`)) return;
     const details = err.payload?.details?.length ? `：${err.payload.details.join('；')}` : '';
     note(contentNote, `${err.message}${details}`, 'error');
   } finally {
@@ -281,7 +301,7 @@ async function loadInquiries() {
     }
     note(noteNode, `共 ${res.total} 条留言。`, '');
   } catch (err) {
-    if (handleUnauthorized(err)) return;
+    if (handleUnauthorized(err, 'GET /api/inquiries')) return;
     note(noteNode, `载入留言失败：${err.message}`, 'error');
   }
 }
@@ -292,7 +312,7 @@ async function updateInquiry(id, data) {
     note(document.getElementById('inquiryNote'), '状态已更新。', 'success');
     await loadInquiries();
   } catch (err) {
-    if (handleUnauthorized(err)) return;
+    if (handleUnauthorized(err, `PATCH /api/inquiries/${id}`)) return;
     note(document.getElementById('inquiryNote'), `更新失败：${err.message}`, 'error');
   }
 }
@@ -303,7 +323,7 @@ async function deleteInquiry(id) {
     note(document.getElementById('inquiryNote'), '留言已删除。', 'success');
     await loadInquiries();
   } catch (err) {
-    if (handleUnauthorized(err)) return;
+    if (handleUnauthorized(err, `DELETE /api/inquiries/${id}`)) return;
     note(document.getElementById('inquiryNote'), `删除失败：${err.message}`, 'error');
   }
 }
@@ -365,7 +385,7 @@ async function loadAudit() {
     }
     note(noteNode, `共 ${res.total} 条记录。`, '');
   } catch (err) {
-    if (handleUnauthorized(err)) return;
+    if (handleUnauthorized(err, 'GET /api/audit-logs')) return;
     note(noteNode, `载入审计日志失败：${err.message}`, 'error');
   }
 }
@@ -405,7 +425,7 @@ function initPasswordForm() {
         showLogin();
       }, 1200);
     } catch (err) {
-      if (handleUnauthorized(err)) return;
+      if (handleUnauthorized(err, 'POST /api/auth/change-password')) return;
       note(noteNode, `修改失败：${err.message}`, 'error');
     } finally {
       submitBtn.disabled = false;
@@ -460,7 +480,7 @@ function initControls() {
       await loadSections();
       selectSection(state.currentKey);
     } catch (err) {
-      if (handleUnauthorized(err)) return;
+      if (handleUnauthorized(err, 'POST /api/content/reset')) return;
       note(contentNote, `恢复失败：${err.message}`, 'error');
     }
   });
