@@ -205,8 +205,17 @@ if [[ -n "${DATA_ROOT:-}" ]]; then
     fi
   fi
   if ! su - postgres -c "psql -tAc \"SELECT 1 FROM pg_tablespace WHERE spcname='${PG_TS_NAME}'\"" | grep -q 1; then
-    su - postgres -c "psql -c \"CREATE TABLESPACE ${PG_TS_NAME} OWNER postgres LOCATION '${PG_TS_DIR}';\"" \
-      || die "创建表空间 ${PG_TS_NAME}（${PG_TS_DIR}）失败：多为 AppArmor 拦截或目录权限问题，排查：journalctl -u postgresql -n 30"
+    if ! su - postgres -c "psql -c \"CREATE TABLESPACE ${PG_TS_NAME} OWNER postgres LOCATION '${PG_TS_DIR}';\"" 2>/tmp/fsop_ts_err.log; then
+      # 兜底：postgres AppArmor profile 处于 enforce 时会拦截非常规表空间路径，自动降级 complain 重试一次
+      if command -v aa-complain >/dev/null 2>&1 \
+        && aa-complain /etc/apparmor.d/usr.lib.postgresql.postgres 2>/dev/null \
+        && su - postgres -c "psql -c \"CREATE TABLESPACE ${PG_TS_NAME} OWNER postgres LOCATION '${PG_TS_DIR}';\""; then
+        warn "postgres AppArmor profile 已临时置为 complain 以创建表空间（${PG_TS_DIR} 放行规则已写入 local，可执行 aa-enforce /etc/apparmor.d/usr.lib.postgresql.postgres 恢复 enforce）"
+      else
+        die "创建表空间 ${PG_TS_NAME}（${PG_TS_DIR}）失败：$(cat /tmp/fsop_ts_err.log 2>/dev/null || true)。多为 AppArmor 拦截或目录权限问题，排查：journalctl -u postgresql -n 30；或安装 apparmor-utils 后重跑（apt-get install -y apparmor-utils）"
+      fi
+    fi
+    rm -f /tmp/fsop_ts_err.log
   fi
   TS_FLAG="-D ${PG_TS_NAME}"
   log "本站数据库表空间：${PG_TS_NAME} → ${PG_TS_DIR}（数据盘）"
