@@ -22,3 +22,11 @@ Thumbs.db
 # 测试产物
 cypress/screenshots/
 cypress/videos/
+
+# 工具缓存（Prisma 引擎二进制、npm 缓存等，体积大且平台相关）
+.cache/
+.npm/
+
+# CodeBuddy 工作数据（记忆、自动化任务等，属本机数据不入库；
+# 同时避免 deploy.sh 的 git clean -fd 每次部署将其删除）
+.codebuddy/
