@@ -184,12 +184,24 @@ log "步骤 4/9：初始化 PostgreSQL"
 systemctl enable --now postgresql
 
 if [[ -z "${PG_PASSWORD:-}" ]]; then
-  PG_PASSWORD="$(openssl rand -base64 24 | tr -d '/+=' | head -c 20)"
-  warn "已为数据库用户 $PG_USER 自动生成密码"
+  # 重复部署：优先从既有 backend/.env 恢复密码 —— 重新生成会与既有角色口令不匹配，导致认证失败
+  EXISTING_DB_URL="$(grep '^DATABASE_URL=' "$REPO_ROOT/backend/.env" 2>/dev/null | cut -d= -f2- || true)"
+  RECOVERED_PW="$(printf '%s' "$EXISTING_DB_URL" | sed -n 's#postgresql://[^:]*:\([^@]*\)@.*#\1#p')"
+  if [[ -n "$RECOVERED_PW" ]]; then
+    PG_PASSWORD="$RECOVERED_PW"
+    warn "已从既有 backend/.env 恢复数据库密码（重复部署）"
+  else
+    PG_PASSWORD="$(openssl rand -base64 24 | tr -d '/+=' | head -c 20)"
+    warn "已为数据库用户 $PG_USER 自动生成密码"
+  fi
 fi
 
-su - postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${PG_USER}'\"" | grep -q 1 \
-  || su - postgres -c "psql -c \"CREATE ROLE ${PG_USER} LOGIN PASSWORD '${PG_PASSWORD}';\""
+if su - postgres -c "psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='${PG_USER}'\"" | grep -q 1; then
+  # 角色已存在：口令对齐到本次部署所用值（密码恢复/重生成后仍可认证）
+  su - postgres -c "psql -c \"ALTER ROLE ${PG_USER} LOGIN PASSWORD '${PG_PASSWORD}';\"" >/dev/null
+else
+  su - postgres -c "psql -c \"CREATE ROLE ${PG_USER} LOGIN PASSWORD '${PG_PASSWORD}';\""
+fi
 
 # 数据盘模式：本站数据库通过独立表空间整体落数据盘（主集群与其余数据库不受影响）
 TS_FLAG=""
