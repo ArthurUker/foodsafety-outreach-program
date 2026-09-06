@@ -8,6 +8,16 @@
   box-sizing: border-box;
 }
 
+/**
+ * hidden 属性兜底：作者样式的 display（如 .admin-login{display:grid}）会覆盖
+ * UA 样式表的 [hidden]{display:none}，导致 JS 切换 hidden 属性后元素仍然可见
+ * （2026-09-06 后台登录页"登录成功却弹不进控制台"事故根因）。!important 保证
+ * hidden 永远生效。
+ */
+[hidden] {
+  display: none !important;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
