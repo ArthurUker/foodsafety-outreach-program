@@ -136,7 +136,13 @@
 }
 
 .admin-main {
+  /* 后台是工具型界面：表格/表单过宽反而降低可读性，不跟随前台容器流式加宽 */
+  max-width: 1280px;
   padding: var(--sp-8) var(--sp-6) var(--sp-16);
+}
+
+.admin-header-inner {
+  max-width: 1280px;
 }
 
 .admin-panel { display: none; }

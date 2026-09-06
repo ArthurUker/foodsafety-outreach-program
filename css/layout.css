@@ -12,7 +12,7 @@
 /* ===== 区块 ===== */
 .section {
   position: relative;
-  padding: var(--sp-20) 0;
+  padding: var(--section-pad) 0;
 }
 
 /* 玻璃风格下区块不再自带实底色，让极光壁纸透上来 */
@@ -38,7 +38,7 @@
 }
 
 .section-heading {
-  max-width: 860px;
+  max-width: min(960px, 100%);
   margin: 0 auto var(--sp-12);
   text-align: center;
 }
@@ -47,7 +47,10 @@
   margin-bottom: var(--sp-4);
 }
 
+/* 居中导语限制行长：超过 ~70ch 的中文段落可读性会明显下降 */
 .section-heading p {
+  max-width: 70ch;
+  margin-inline: auto;
   font-size: var(--fs-md);
   line-height: var(--lh-snug);
 }
