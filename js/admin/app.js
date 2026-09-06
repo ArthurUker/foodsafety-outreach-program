@@ -156,6 +156,9 @@ async function enterAdmin() {
     switchTab('force');
     return;
   }
+  // 非强制改密时回到默认工作区：SPA 内改密后重复登录不会整页刷新，
+  // 不重置的话会残留上一次会话的激活面板（如账号安全）与旧提示。
+  switchTab('content');
 
   await Promise.all([loadSections(), loadInquiries(), loadAudit()]);
 }
