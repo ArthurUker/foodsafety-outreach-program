@@ -129,7 +129,7 @@ app.use((req, res, next) => {
 
 // favicon 内联 SVG，避免浏览器默认请求 404 噪音
 app.get('/favicon.ico', (_req, res) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0f766e"/><path d="M32 12l14 6v14c0 11-7 18-14 20-7-2-14-9-14-20V18z" fill="#fff"/><path d="M25 32l5 5 10-11" stroke="#0f766e" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0071e3"/><path d="M32 12l14 6v14c0 11-7 18-14 20-7-2-14-9-14-20V18z" fill="#fff"/><path d="M25 32l5 5 10-11" stroke="#0071e3" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   res.setHeader('Content-Type', 'image/svg+xml');
   res.setHeader('Cache-Control', 'public, max-age=86400');
   res.send(svg);

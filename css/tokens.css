@@ -4,11 +4,11 @@
  */
 
 :root {
-  /* ===== 品牌色 ===== */
-  --brand: #0f766e;
-  --brand-strong: #0b5d56;
-  --brand-soft: #d5f2ee;
-  --brand-glow: rgba(15, 118, 110, 0.18);
+  /* ===== 品牌色（完全 Apple 化：交互色 = Apple Blue #0071e3） ===== */
+  --brand: #0071e3;
+  --brand-strong: #0066cc;
+  --brand-soft: #e8f1fd;
+  --brand-glow: rgba(0, 113, 227, 0.22);
 
   --accent: #f59e0b;
   --accent-soft: #fef3c7;
@@ -90,10 +90,10 @@
   --shadow-lg: 0 18px 48px rgba(15, 23, 42, 0.12);
   --shadow-glow: 0 12px 32px var(--brand-glow);
 
-  /* ===== 动效 ===== */
-  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* ===== 动效（Apple Store 实测：320ms + cubic-bezier(0.4,0,0.6,1)） ===== */
+  --ease: cubic-bezier(0.4, 0, 0.6, 1);
   --dur-fast: 140ms;
-  --dur-base: 240ms;
+  --dur-base: 320ms;
   --dur-slow: 420ms;
 
   /* ===== 布局 ===== */

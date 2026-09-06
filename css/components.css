@@ -271,7 +271,7 @@
   text-transform: uppercase;
   color: #134e4a;
   background: rgba(255, 255, 255, 0.72);
-  border-bottom: 1.5px solid rgba(15, 118, 110, 0.25);
+  border-bottom: 1.5px solid rgba(0, 113, 227, 0.25);
 }
 
 .data-table tbody tr { transition: background-color 0.15s ease; }
@@ -316,7 +316,7 @@
   color: var(--ink-800);
   /* 玻璃上的输入控件需提高不透明度，否则输入内容难以辨认 */
   background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(15, 118, 110, 0.22);
+  border: 1px solid rgba(0, 113, 227, 0.22);
   border-radius: var(--radius-md);
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
   transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease),
