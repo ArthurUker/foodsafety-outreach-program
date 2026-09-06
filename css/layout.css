@@ -91,6 +91,13 @@
   gap: var(--grid-gap);
 }
 
+/* 超宽屏：栅格间距随容器同步放大，避免大卡片贴在一起 */
+@media (min-width: 1600px) {
+  .grid {
+    gap: 2rem;
+  }
+}
+
 .grid-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

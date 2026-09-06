@@ -98,10 +98,11 @@
 
   /* ===== 布局 ===== */
   /**
-   * Apple 官网实测：营销容器 1068px 封顶；1441px+ 宽屏「增加留白，栅格保持 max-width」。
-   * 宽屏的呼吸感来自区块留白（128px）与更大的字号，而非加宽内容。
+   * 容器对齐 Apple Store 页的宽幅栅格：内容铺满 ~92vw，超宽屏封顶 1760px。
+   * （Apple 的卡片行在宽视口下延伸到屏幕两侧，仅留 ~4% 边距。）
+   * 文本块的可读性行长由 .section-heading 等单独限宽，两者解耦。
    */
-  --container: min(1068px, 92vw);
+  --container: clamp(1200px, 92vw, 1760px);
   --grid-gap: 1.5rem;                                   /* Apple 栅格间距固定 24px */
   --section-pad: clamp(3rem, 2rem + 4vw, 8rem);         /* 48px（移动）→ 128px（桌面），对齐 Apple */
   --header-h: 72px;
