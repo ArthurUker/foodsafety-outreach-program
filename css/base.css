@@ -22,12 +22,7 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-h) + 16px);
-  /**
-   * 根字号随视口流式放大：全站 rem 尺寸等比缩放。
-   * ≤1280px 维持 16px 不变；宽屏温和增长（Apple 的正文 17→21px 节奏），封顶 18.5px。
-   * 正文列的舒适行长由容器与文本块限宽保证，而非无限放大字号。
-   */
-  font-size: clamp(16px, calc(16px + (100vw - 1280px) * 0.0022), 18.5px);
+  /* Apple 不做根字号视口缩放：字号体系靠令牌与断点控制，根字号保持 16px 基准 */
 }
 
 body {

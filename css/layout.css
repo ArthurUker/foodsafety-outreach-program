@@ -39,7 +39,7 @@
 
 /* 章节标题块：文本限宽居中（Apple 式可读性的核心——正文列永不过宽） */
 .section-heading {
-  max-width: min(760px, 100%);
+  max-width: min(660px, 100%);
   margin: 0 auto clamp(2.5rem, 1.5rem + 2.5vw, 4.5rem);
   text-align: center;
 }
@@ -49,8 +49,15 @@
 }
 
 .section-heading p {
-  font-size: clamp(1rem, 0.95rem + 0.35vw, 1.15rem);
-  line-height: 1.65;
+  font-size: var(--fs-md);
+  line-height: 1.6;
+}
+
+/* Apple 实测：1441px+ 的宽屏「增加留白，栅格保持 max-width」 */
+@media (min-width: 1441px) {
+  .section {
+    padding-block: 8.5rem;
+  }
 }
 
 .section-heading.is-light h2,

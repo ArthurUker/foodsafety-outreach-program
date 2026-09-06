@@ -43,23 +43,25 @@
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 
   /**
-   * 大标题用 clamp 流式字号：随视口平滑增长，替代「移动端一档、桌面一档」的跳变。
-   * 小字号（正文/辅助文字）保持固定 rem —— 正文不宜随屏幕无限放大。
+   * 字号体系对齐 Apple 官网实测值（designmd.cc 基准，2026-05）：
+   * Display 56/1.1/-0.02em · H1 44 · H2 28 · H3 21 · 正文 17 · 次要 14 · 脚注 12 下限。
+   * 中文正文行高比 Apple（1.4）放宽到 1.55-1.7。
+   * Apple 不做根字号缩放，而是按断点跳变；标题用 clamp 在断点间平滑过渡。
    */
   --fs-xs: 0.75rem;
-  --fs-sm: 0.8125rem;
-  --fs-base: 0.9375rem;
-  --fs-md: 1rem;
-  --fs-lg: 1.125rem;
-  --fs-xl: 1.375rem;
-  --fs-2xl: clamp(1.6rem, 1.4rem + 0.6vw, 1.95rem);
-  --fs-3xl: clamp(1.9rem, 1.5rem + 1.2vw, 2.7rem);
-  --fs-4xl: clamp(2.35rem, 1.6rem + 2.4vw, 3.75rem);
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.1875rem;
+  --fs-xl: 1.3125rem;
+  --fs-2xl: clamp(1.5rem, 1.35rem + 0.5vw, 1.75rem);
+  --fs-3xl: clamp(1.75rem, 1.5rem + 0.8vw, 2.75rem);
+  --fs-4xl: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
 
   --lh-tight: 1.25;
-  --lh-display: 1.12;   /* 大标题专用：更大的字号配更紧的行高（Apple 式排版） */
-  --lh-snug: 1.45;
-  --lh-base: 1.75;
+  --lh-display: 1.1;    /* Apple Display 行高 */
+  --lh-snug: 1.5;
+  --lh-base: 1.7;
 
   /* ===== 间距 ===== */
   --sp-1: 0.25rem;
@@ -96,12 +98,12 @@
 
   /* ===== 布局 ===== */
   /**
-   * 容器上限 1320px（Apple 式：宽屏加留白不加宽度，正文列永不过宽）。
-   * 92vw 保证窄屏两侧仍有呼吸边距。
+   * Apple 官网实测：营销容器 1068px 封顶；1441px+ 宽屏「增加留白，栅格保持 max-width」。
+   * 宽屏的呼吸感来自区块留白（128px）与更大的字号，而非加宽内容。
    */
-  --container: min(1320px, 92vw);
-  --grid-gap: clamp(1.25rem, 1rem + 0.7vw, 1.75rem);   /* 栅格间距 20-28px（Apple 卡片 gutter） */
-  --section-pad: clamp(4.5rem, 2.5rem + 5.5vw, 9rem);  /* 区块纵向留白 72→144px（Apple 式大留白） */
+  --container: min(1068px, 92vw);
+  --grid-gap: 1.5rem;                                   /* Apple 栅格间距固定 24px */
+  --section-pad: clamp(3rem, 2rem + 4vw, 8rem);         /* 48px（移动）→ 128px（桌面），对齐 Apple */
   --header-h: 72px;
 
   /* ===== 层级 ===== */
