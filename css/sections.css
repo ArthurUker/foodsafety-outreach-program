@@ -35,7 +35,6 @@
 .hero-title {
   font-size: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
   line-height: 1.1;
-  letter-spacing: -0.02em;
   text-wrap: balance;
   margin-bottom: var(--sp-5);
 }
@@ -74,10 +73,7 @@
   transition: transform var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
 }
 
-.metric-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.78);
-}
+/* Apple 规范：卡片无 hover 态，静态呈现（移除浮起效果） */
 
 /* 玻璃高光伪元素会盖在内容之上，需让内容上浮（.card 已有同类规则） */
 .metric-card > *,

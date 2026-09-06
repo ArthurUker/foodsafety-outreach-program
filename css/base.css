@@ -46,13 +46,21 @@ body.is-ready {
   opacity: 1;
 }
 
+/**
+ * 中文标题字重与字距（Apple 中文官网规则，chaos-xxl/apple-design-skill CRITICAL 段）：
+ * CJK 字体在 600-700 字重视觉偏细，需加重补偿——h1 900 / h2 800 / h3 700；
+ * 中文标题字间距放宽 +0.04em（负字距是拉丁文字规则，对中文是反模式）。
+ * PingFang SC 最重为 Semibold，900/800 会取最接近可用字重，无副作用。
+ */
 h1, h2, h3, h4, h5 {
   margin: 0 0 var(--sp-3);
   color: var(--ink-900);
   line-height: var(--lh-tight);
   font-weight: 700;
-  letter-spacing: -0.01em;
 }
+
+h1 { font-weight: 900; letter-spacing: 0.04em; }
+h2 { font-weight: 800; letter-spacing: 0.04em; }
 
 /* 大标题排印优化：多行标题自动均衡断行（Apple 式观感，不支持时优雅降级） */
 h1, h2 {

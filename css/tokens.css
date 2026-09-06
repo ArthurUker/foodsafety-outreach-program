@@ -137,8 +137,8 @@
      Apple 的卡片分隔靠底色对比（#f5f5f7 上的白卡）而非阴影。
      ============================================================ */
   --glass-bg: #ffffff;
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-radius: 18px;
+  --glass-border: transparent;   /* Apple 规范：卡片不加可见边框，靠与 #f5f5f7 底的对比分层 */
+  --glass-radius: 12px;          /* Apple 规范：矩形元素圆角 ≤12px */
   --glass-blur: 0px;
   --glass-saturate: 100%;
 
