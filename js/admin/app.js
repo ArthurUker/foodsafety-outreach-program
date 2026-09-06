@@ -8,6 +8,7 @@
 
 import { api, getToken, setToken, clearToken } from '../core/api.js';
 import { el, clear } from '../core/dom.js';
+import { initCanvas, renderCanvas, getDraft, isCanvasMode, setCanvasMode } from './canvas.js';
 
 const state = {
   user: null,
@@ -205,6 +206,8 @@ function selectSection(key) {
   const section = state.sections.find((s) => s.key === key);
   if (!section) return;
   editor.value = JSON.stringify(section.payload, null, 2);
+  // 画布始终渲染服务端当前内容：切章节即丢弃上一段未保存草稿（避免误存别的章节）
+  renderCanvas(key, section.payload);
   sectionSelect.value = key;
   document.getElementById('sectionMeta').textContent = section.updatedAt
     ? `最后更新：${formatTime(section.updatedAt)}${section.updatedBy ? ` · ${section.updatedBy}` : ''}`
@@ -215,11 +218,19 @@ function selectSection(key) {
 
 async function saveSection() {
   let payload;
-  try {
-    payload = JSON.parse(editor.value);
-  } catch (err) {
-    note(contentNote, `JSON 语法错误：${err.message}`, 'error');
-    return;
+  if (isCanvasMode()) {
+    payload = getDraft();
+    if (!payload) {
+      note(contentNote, '画布尚未载入内容，请稍后再试。', 'error');
+      return;
+    }
+  } else {
+    try {
+      payload = JSON.parse(editor.value);
+    } catch (err) {
+      note(contentNote, `JSON 语法错误：${err.message}`, 'error');
+      return;
+    }
   }
 
   const btn = document.getElementById('saveContentBtn');
@@ -439,6 +450,57 @@ function initPasswordForm() {
 
 /* ============================ 初始化 ============================ */
 
+/* ============================ 内容编辑模式（可视化 / JSON） ============================ */
+
+/**
+ * 切换编辑模式。
+ * ⚠️ 顺序要点：先校验再切换。切回可视化时若 JSON 有语法错误，直接返回并保持 JSON 模式，
+ * 避免用旧草稿覆盖运营正在编辑的文本框内容。
+ */
+function applyContentMode(mode) {
+  const visual = mode === 'visual';
+
+  if (visual) {
+    try {
+      renderCanvas(state.currentKey, JSON.parse(editor.value));
+    } catch (err) {
+      note(contentNote, `JSON 语法有误，无法切回可视化：${err.message}`, 'error');
+      return;
+    }
+  } else {
+    const draft = getDraft();
+    if (draft) editor.value = JSON.stringify(draft, null, 2);
+  }
+
+  setCanvasMode(mode);
+  document.getElementById('canvasWrap').hidden = !visual;
+  document.getElementById('jsonHint').hidden = visual;
+  editor.hidden = visual;
+  document.getElementById('formatBtn').hidden = visual;
+  document.getElementById('modeVisualBtn').classList.toggle('is-active', visual);
+  document.getElementById('modeJsonBtn').classList.toggle('is-active', !visual);
+}
+
+function initContentMode() {
+  document.getElementById('modeVisualBtn').addEventListener('click', () => applyContentMode('visual'));
+  document.getElementById('modeJsonBtn').addEventListener('click', () => applyContentMode('json'));
+
+  initCanvas({
+    frame: document.getElementById('canvasFrame'),
+    onEdit: () => {
+      state.dirty = true;
+      note(contentNote, '画布已修改，记得点「保存修改」。', '');
+    },
+    onStats: (stats) => {
+      const meta = document.getElementById('canvasMeta');
+      if (meta) meta.textContent = `识别到 ${stats.editable} 个可编辑字段 · ${stats.items} 个可增删列表项`;
+      if (stats.editable === 0) {
+        note(contentNote, '本章节未自动识别到可编辑字段，请切换到 JSON 模式编辑。', 'error');
+      }
+    },
+  });
+}
+
 function initControls() {
   document.getElementById('adminTabs').addEventListener('click', (event) => {
     const tab = event.target.closest('.admin-tab');
@@ -506,6 +568,7 @@ function initControls() {
 async function bootstrap() {
   initLogin();
   initPasswordForm();
+  initContentMode();
   initControls();
 
   if (!getToken()) {

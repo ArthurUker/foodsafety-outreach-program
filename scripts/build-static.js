@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
-const filesToCopy = ['index.html', 'admin.html'];
+const filesToCopy = ['index.html', 'admin.html', 'admin-preview.html'];
 const dirsToCopy = ['css', 'js', 'data'];
 
 // 玻璃化依赖这些文件：缺失会导致极光壁纸与折射滤镜整体失效（表现为「玻璃变成磨砂塑料」）

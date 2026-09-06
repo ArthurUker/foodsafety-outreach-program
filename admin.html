@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="css/canvas.css" />
 </head>
 <body>
   <!-- 玻璃折射滤镜（供 .glass 的 backdrop-filter 引用） -->
@@ -87,6 +88,10 @@
             <select class="select" id="sectionSelect"></select>
           </div>
           <div class="toolbar-actions">
+            <div class="mode-switch" role="group" aria-label="编辑模式">
+              <button class="mode-btn is-active" type="button" id="modeVisualBtn">可视化</button>
+              <button class="mode-btn" type="button" id="modeJsonBtn">JSON</button>
+            </div>
             <span class="meta" id="sectionMeta"></span>
             <button class="btn btn-ghost btn-sm" type="button" id="reloadContentBtn">重新载入</button>
             <button class="btn btn-ghost btn-sm" type="button" id="formatBtn">格式化 JSON</button>
@@ -94,10 +99,20 @@
             <button class="btn btn-primary btn-sm" type="button" id="saveContentBtn">保存修改</button>
           </div>
         </div>
-        <p class="hint">
+
+        <!-- 可视化模式：画布直接渲染官网真实样式，点击文字即可改 -->
+        <div class="canvas-wrap" id="canvasWrap">
+          <div class="canvas-bar">
+            <span>点击画布上的文字直接编辑，回车完成；列表项悬停可 <kbd>＋</kbd> 新增、<kbd>↑↓</kbd> 排序、<kbd>✕</kbd> 删除。</span>
+            <span class="meta" id="canvasMeta"></span>
+          </div>
+          <iframe class="canvas-frame" id="canvasFrame" src="admin-preview.html" title="章节实时预览"></iframe>
+        </div>
+
+        <p class="hint" id="jsonHint" hidden>
           以 JSON 编辑章节内容。保存前会在服务端做结构与安全校验（嵌套 ≤6 层、体积 ≤200KB、链接与颜色合法性）。
         </p>
-        <textarea class="textarea json-editor" id="contentEditor" spellcheck="false"></textarea>
+        <textarea class="textarea json-editor" id="contentEditor" spellcheck="false" hidden></textarea>
         <p class="form-note" id="contentNote" role="status" aria-live="polite"></p>
       </section>
 
