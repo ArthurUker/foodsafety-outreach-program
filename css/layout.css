@@ -37,9 +37,10 @@
   color: var(--ink-800);
 }
 
+/* 章节标题块：文本限宽居中（Apple 式可读性的核心——正文列永不过宽） */
 .section-heading {
-  max-width: min(960px, 100%);
-  margin: 0 auto var(--sp-12);
+  max-width: min(760px, 100%);
+  margin: 0 auto clamp(2.5rem, 1.5rem + 2.5vw, 4.5rem);
   text-align: center;
 }
 
@@ -47,12 +48,9 @@
   margin-bottom: var(--sp-4);
 }
 
-/* 居中导语限制行长：超过 ~70ch 的中文段落可读性会明显下降 */
 .section-heading p {
-  max-width: 70ch;
-  margin-inline: auto;
-  font-size: var(--fs-md);
-  line-height: var(--lh-snug);
+  font-size: clamp(1rem, 0.95rem + 0.35vw, 1.15rem);
+  line-height: 1.65;
 }
 
 .section-heading.is-light h2,
@@ -92,7 +90,7 @@
 /* ===== 栅格 ===== */
 .grid {
   display: grid;
-  gap: var(--sp-5);
+  gap: var(--grid-gap);
 }
 
 .grid-3 {

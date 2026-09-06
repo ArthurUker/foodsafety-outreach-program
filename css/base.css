@@ -23,11 +23,11 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-h) + 16px);
   /**
-   * 根字号随视口流式放大（Apple 式排版核心）：全站 rem 尺寸等比缩放。
-   * ≤1280px 维持 16px 不变（移动端/平板不受影响），
-   * ≥1280px 线性增长，2560px 及以上封顶 20px，大屏不再显得字小、内容稀疏。
+   * 根字号随视口流式放大：全站 rem 尺寸等比缩放。
+   * ≤1280px 维持 16px 不变；宽屏温和增长（Apple 的正文 17→21px 节奏），封顶 18.5px。
+   * 正文列的舒适行长由容器与文本块限宽保证，而非无限放大字号。
    */
-  font-size: clamp(16px, calc(16px + (100vw - 1280px) * 0.0035), 20px);
+  font-size: clamp(16px, calc(16px + (100vw - 1280px) * 0.0022), 18.5px);
 }
 
 body {
