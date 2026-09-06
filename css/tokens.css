@@ -22,21 +22,21 @@
   --info: #2563eb;
   --info-soft: #dbeafe;
 
-  /* ===== 中性色 ===== */
-  --ink-900: #0f172a;
-  --ink-800: #1e293b;
-  --ink-700: #334155;
-  --ink-600: #475569;
-  --ink-500: #64748b;
-  --ink-400: #94a3b8;
-  --ink-300: #cbd5e1;
-  --ink-200: #e2e8f0;
-  --ink-100: #f1f5f9;
-  --ink-50: #f8fafc;
+  /* ===== 中性色（对齐 Apple：文字 #1d1d1f、次要 #6e6e73、底 #f5f5f7、边框 #d2d2d7） ===== */
+  --ink-900: #1d1d1f;
+  --ink-800: #1d1d1f;
+  --ink-700: #424245;
+  --ink-600: #6e6e73;
+  --ink-500: #86868b;
+  --ink-400: #aeaeb2;
+  --ink-300: #d2d2d7;
+  --ink-200: #e8e8ed;
+  --ink-100: #f5f5f7;
+  --ink-50: #fbfbfd;
 
   --surface: #ffffff;
-  --surface-muted: #f6f9fb;
-  --surface-dark: #0b1a24;
+  --surface-muted: #f5f5f7;
+  --surface-dark: #161617;
 
   /* ===== 排版 ===== */
   --font-sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -130,41 +130,36 @@
   --aurora-saturate: 165%;
 
   /* ============================================================
-     玻璃材质
-     .glass 为外层玻璃（含 backdrop-filter）；
-     .glass-panel 为内层面板，**不叠加 backdrop-filter** —— 滤镜相乘会
-     让嵌套层级迅速糊成一片，这是玻璃风格最常见的翻车点。
+     卡片材质（已从玻璃拟物切换为 Apple 平面风格）
+     .glass 类名保留兼容，但语义变为「白卡片」：
+     实底白 + 1px 细边框 + 18px 圆角，无 backdrop-filter、无高光、无投影。
+     Apple 的卡片分隔靠底色对比（#f5f5f7 上的白卡）而非阴影。
      ============================================================ */
-  --glass-bg: rgba(255, 255, 255, 0.56);
-  --glass-border: rgba(255, 255, 255, 0.78);
-  --glass-radius: 1.7rem;
-  --glass-blur: 14px;
-  --glass-saturate: 180%;
+  --glass-bg: #ffffff;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-radius: 18px;
+  --glass-blur: 0px;
+  --glass-saturate: 100%;
 
-  --glass-panel-bg: rgba(255, 255, 255, 0.66);
-  --glass-panel-border: rgba(255, 255, 255, 0.6);
-  --glass-panel-radius: 1rem;
+  --glass-panel-bg: var(--surface-muted);
+  --glass-panel-border: transparent;
+  --glass-panel-radius: 12px;
 
-  /* 深色玻璃：用于深色区块内的卡片与导航（叠在已变暗的承托层上，故可不透明度较低） */
-  --glass-dark-bg: rgba(10, 42, 48, 0.42);
-  --glass-dark-solid: rgb(10, 42, 48);
-  --glass-dark-border: rgba(255, 255, 255, 0.18);
+  /* 深色区块（#161617 实底）内的卡片 */
+  --glass-dark-bg: rgba(255, 255, 255, 0.07);
+  --glass-dark-solid: #1d1d1f;
+  --glass-dark-border: rgba(255, 255, 255, 0.12);
 
-  /**
-   * 大面积深色承托层（区块 / 页脚）。
-   * ⚠️ 不能直接用 --glass-dark-bg：后者仅 42% 不透明，叠在**亮色极光**之上时
-   * 实际底色会泛白，浅色文字对比度不足（可读性事故）。大面积区域必须用这层更实的
-   * 遮罩把极光压暗，再在其上放 42% 的深色玻璃卡片（.glass-dark）形成层次。
-   */
-  --glass-dark-veil: rgba(10, 42, 48, 0.82);
+  /* 深色承托层：Apple 深色区块为纯实底，不用遮罩概念 */
+  --glass-dark-veil: #161617;
 
-  /* 玻璃高光体系：顶部高光 / 内描边 / 内发光 / 外投影 */
-  --glass-hi-top: rgba(255, 255, 255, 0.95);
-  --glass-hi-ring: rgba(255, 255, 255, 0.55);
-  --glass-hi-glow: rgba(255, 255, 255, 0.30);
-  --glass-shadow: 0 16px 46px rgba(40, 60, 100, 0.20);
-  --glass-shadow-dark: 0 16px 46px rgba(6, 24, 30, 0.34);
-  --glass-shadow-hover: 0 22px 60px rgba(40, 60, 100, 0.26);
+  /* 兼容保留（历史样式引用），flat 风格下趋近于无 */
+  --glass-hi-top: rgba(255, 255, 255, 0);
+  --glass-hi-ring: rgba(255, 255, 255, 0);
+  --glass-hi-glow: rgba(255, 255, 255, 0);
+  --glass-shadow: none;
+  --glass-shadow-dark: none;
+  --glass-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 /* 深色区块内的局部令牌覆盖 */

@@ -15,33 +15,24 @@
   padding: var(--section-pad) 0;
 }
 
-/* 玻璃风格下区块不再自带实底色，让极光壁纸透上来 */
+/* 浅灰底上的细分隔线（Apple 式：白/灰分区靠 1px 线与底色对比） */
 .section-muted {
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* 深色区块：用遮罩把亮色极光压暗，保证浅色文字对比度
-   ⚠️ 此处**不能**加 backdrop-filter：
-   ① 遮罩已 82% 不透明，模糊的视觉收益极小；
-   ② 祖先的 backdrop-filter 会创建 backdrop root，使内部 .tech-panel / .tech-step
-      等玻璃元素只能采样到「被遮罩后」的结果，导致嵌套处滤镜相乘、发糊甚至完全失效。
-   代价远大于收益，故只保留半透明遮罩。 */
+/* 深色区块：Apple 式纯实底（#161617），无渐变无滤镜 */
 .section-dark {
-  background:
-    radial-gradient(1200px 520px at 12% -10%, rgba(15, 118, 110, 0.34), transparent 60%),
-    radial-gradient(900px 480px at 88% 8%, rgba(37, 99, 235, 0.22), transparent 62%),
-    var(--glass-dark-veil);
-  border-top: 1px solid var(--glass-dark-border);
-  border-bottom: 1px solid var(--glass-dark-border);
+  background: var(--surface-dark);
   color: var(--ink-800);
 }
 
 /* 章节标题块：文本限宽居中（Apple 式可读性的核心——正文列永不过宽） */
+/* 章节标题块：Apple 式左对齐大标题 + 左侧导语 */
 .section-heading {
-  max-width: min(660px, 100%);
-  margin: 0 auto clamp(2.5rem, 1.5rem + 2.5vw, 4.5rem);
-  text-align: center;
+  max-width: 720px;
+  margin: 0 0 clamp(2.5rem, 1.5rem + 2.5vw, 4.5rem);
+  text-align: left;
 }
 
 .section-heading h2 {
@@ -51,6 +42,7 @@
 .section-heading p {
   font-size: var(--fs-md);
   line-height: 1.6;
+  color: var(--ink-600);
 }
 
 /* Apple 实测：1441px+ 的宽屏「增加留白，栅格保持 max-width」 */
@@ -81,9 +73,8 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--brand);
-  background: rgba(213, 242, 238, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: rgba(15, 118, 110, 0.08);
+  border: 1px solid transparent;
   border-radius: var(--radius-full);
 }
 
@@ -108,26 +99,20 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-/* ===== 页头：悬浮玻璃条 ===== */
+/* ===== 页头：Apple 式导航条（实测 rgba(250,250,252,0.8) + blur(20px) saturate(180%)） ===== */
 .site-header {
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: rgba(255, 255, 255, 0.58);
-  -webkit-backdrop-filter: url(#lg-refraction) blur(16px) saturate(180%);
-  backdrop-filter: url(#lg-refraction) blur(16px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow:
-    0 8px 30px rgba(40, 60, 100, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: box-shadow var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
+  background: rgba(250, 250, 252, 0.8);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  transition: background var(--dur-base) var(--ease);
 }
 
 .site-header.is-scrolled {
-  background: rgba(255, 255, 255, 0.74);
-  box-shadow:
-    0 12px 36px rgba(40, 60, 100, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  background: rgba(250, 250, 252, 0.92);
 }
 
 .header-inner {
@@ -252,12 +237,10 @@
 .menu-toggle.is-active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* ===== 页脚 ===== */
-/* 同 .section-dark：只用遮罩压暗极光，不加 backdrop-filter（理由见 .section-dark 注释） */
 .site-footer {
   position: relative;
   padding: var(--sp-12) 0;
-  background: var(--glass-dark-veil);
-  border-top: 1px solid var(--glass-dark-border);
+  background: var(--surface-dark);
   color: var(--ink-300);
 }
 
