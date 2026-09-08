@@ -2,7 +2,7 @@
  * 限流与请求校验中间件。
  *
  * ⚠️ 单实例假设：限流计数存于进程内存。若将来水平扩容，必须先迁移到 Redis 等共享存储，
- * 否则各实例计数独立，限流形同虚设（与 foodtestlab 同款约束）。
+ * 否则各实例计数独立，限流形同虚设。
  */
 
 import { isSafeInput, clientIp } from '../lib/validation.js';

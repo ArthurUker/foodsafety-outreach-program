@@ -27,7 +27,7 @@
 
 ### 新增
 
-**视觉：玻璃化设计系统（参考 Tianjiabing_foodtestlab）**
+**视觉：玻璃化设计系统**
 
 - `css/glass.css`：五层玻璃结构实现
   - ① 壁纸层 `body::before`：四角极光 + 底层洗染渐变，`blur(22px) saturate(165%)`，
@@ -70,7 +70,7 @@
 
 ## [2.0.0] - 2026-09-01
 
-方案站全栈化重构。参考 `Tianjiabing_foodtestlab` 的成熟架构模式（分层目录、注册中心驱动、构建脚本、
+方案站全栈化重构。沿用成熟的架构模式（分层目录、注册中心驱动、构建脚本、
 fail-closed 安全守卫、Caddy + systemd 部署），针对本项目场景做了简化（单站点，不做 schema-per-tenant）。
 
 ### 新增

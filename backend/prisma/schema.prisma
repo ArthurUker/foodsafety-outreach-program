@@ -79,7 +79,7 @@ model AuditLog {
 }
 
 /// 令牌吊销表（登出 / 改密 / 禁用账号后即时生效，不等 JWT 自然过期）。
-/// 与 foodtestlab 同款机制，按 jti 精确吊销 + user_all 全量吊销。
+/// 按 jti 精确吊销 + user_all 全量吊销。
 model RevokedToken {
   id        String   @id @default(cuid())
   jti       String

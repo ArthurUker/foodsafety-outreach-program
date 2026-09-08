@@ -1,7 +1,7 @@
 /**
  * 认证中间件工厂。
  *
- * 与 foodtestlab 同款结构：createAuthMiddleware 统一导出 authenticateUser / authorizeRoles，
+ * 统一结构：createAuthMiddleware 统一导出 authenticateUser / authorizeRoles，
  * 禁止在各路由内重复实现认证逻辑。
  *
  * DB 回查策略：签名通过后回查用户 status（禁用/删除立即 401）与 role

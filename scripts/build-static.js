@@ -2,7 +2,7 @@
  * 静态构建：生成 dist/ 目录（纯文件拷贝，无打包器）。
  *
  * ⚠️ 本脚本仅在手动执行后才更新 dist/。生产由 Caddy 直接 serve dist/，
- * 改完源码必须重建，否则线上仍是旧版本（与 foodtestlab 的同款教训）。
+ * 改完源码必须重建，否则线上仍是旧版本。
  *
  * 用法：node scripts/build-static.js
  */

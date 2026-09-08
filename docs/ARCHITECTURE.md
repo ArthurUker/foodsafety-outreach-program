@@ -61,7 +61,7 @@
 
 ### 3.1 为什么不用打包器
 
-沿用参考系统（foodtestlab）的做法：前端为原生 ES Module，浏览器直载，`scripts/build-static.js` 只做文件拷贝到 `dist/`。
+前端为原生 ES Module，浏览器直载，`scripts/build-static.js` 只做文件拷贝到 `dist/`。
 
 - 收益：零构建复杂度、零依赖漏洞面、改代码即生效（本地）、`dist/` 与源码一一对应便于排查
 - 代价：HTTP 请求数较多 —— 本项目模块数量少（< 20 个），代价可忽略
@@ -88,7 +88,7 @@
 
 ### 3.5 为什么单 schema，不做 schema-per-tenant
 
-参考系统 foodtestlab 是 50+ 学校的多租户系统，采用 schema-per-tenant。
+成熟的多校多租户方案通常采用 schema-per-tenant 隔离。
 **本站是单站点宣传站**，只有一个"租户"，引入多租户隔离是过度设计。
 若将来需要多校/多版本方案展示，再按 `schoolCode ?schema=` 模式扩展（模式已在参考系统验证过）。
 
