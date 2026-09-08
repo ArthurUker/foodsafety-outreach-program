@@ -6,7 +6,7 @@
 
 ## 1. 本地环境
 
-**依赖**：Node.js ≥ 18（推荐 20）、PostgreSQL ≥ 12、npm。
+**依赖**：Node.js ≥20.19（也支持 ≥22.13 / ≥24）、PostgreSQL ≥12、npm。
 
 ```bash
 # 1) 建库
@@ -14,11 +14,12 @@ createdb foodsafety_outreach
 
 # 2) 配置环境变量
 cp .env.example backend/.env
-# 填写 DATABASE_URL；生成 JWT_SECRET：
+# 填写 DATABASE_URL、SEED_ADMIN_PASSWORD；生成 JWT_SECRET：
 openssl rand -base64 48
 
 # 3) 安装依赖
-npm --prefix backend install
+npm ci
+npm --prefix backend ci
 
 # 4) 初始化表结构与数据
 npm run db:generate
@@ -44,6 +45,8 @@ npm run dev          # 后端 :3000，同源托管静态资源
 | --- | --- | --- |
 | `NODE_ENV` | `development` | 环境标识；`development` 时错误响应回传堆栈 |
 | `PORT` | `3000` | 后端监听端口 |
+| `HOST` | `127.0.0.1` | 监听地址；生产保持本机监听 |
+| `TRUST_PROXY_HOPS` | `1` | Caddy 到 Express 的可信代理跳数 |
 | `SERVE_STATIC` | `true` | 本地开发由 Express 托管静态资源；生产必须为 `false`（由 Caddy 托管 `dist/`） |
 | `DATABASE_URL` | — | PostgreSQL 连接串 |
 | `JWT_SECRET` | — | **必填**，≥32 位强随机；命中弱密钥黑名单拒绝启动 |
@@ -202,8 +205,8 @@ npm run smoke
 ## 8. 数据库操作
 
 ```bash
-npm run db:push        # 开发：同步表结构（无迁移文件）
-npm run db:migrate     # 开发：生成迁移文件并应用
+npm run db:push        # 仅开发：快速同步表结构，不生成迁移
+npm --prefix backend run db:migrate # 开发：生成迁移文件并应用
 npm run db:deploy      # 生产：应用已有迁移
 npm run db:studio      # 可视化查看数据
 npm run seed           # 管理员 + 内容导入（幂等）

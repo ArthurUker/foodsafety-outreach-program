@@ -5,6 +5,8 @@
 > 本文档为系统级总览。长期开发规范见 [`docs/PROJECT_CONVENTIONS.md`](docs/PROJECT_CONVENTIONS.md)（优先级最高），
 > 架构决策见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)，开发细节见 [`docs/DEVELOPMENT_GUIDE.md`](docs/DEVELOPMENT_GUIDE.md)，
 > 变更记录见 [`docs/CHANGELOG.md`](docs/CHANGELOG.md)。
+>
+> 最近一次代码审阅基线：**2026-09-08**。当前可正常构建和渲染，但仍有若干上线前应处理的安全、迁移与测试缺口，见第 10 节。
 
 ---
 
@@ -49,7 +51,7 @@
 
 | 层 | 技术 | 说明 |
 | --- | --- | --- |
-| 后端运行时 | Node.js 20、Express 4（ESM） | 入口 `backend/server.js`，端口经 `PORT` 配置（腾讯云生产为 3100） |
+| 后端运行时 | Node.js ≥20.19、Express 5（ESM） | 入口 `backend/server.js`，默认监听 `127.0.0.1`，端口经 `PORT` 配置 |
 | ORM / 数据库 | Prisma 5 + PostgreSQL | `backend/prisma/schema.prisma` |
 | 认证 | jsonwebtoken 9 + bcryptjs 2 | 无状态 JWT + 令牌吊销表，bcrypt 存储 |
 | 前端 | 原生 ES Module（无打包器） | 浏览器直载，`js/**` 分层 |
@@ -110,31 +112,38 @@ foodsafety-outreach-program/
 ### 4.1 纯静态预览（不启动后端）
 
 ```bash
-node scripts/dev-server.js 4173
+npm run serve
 # 打开 http://localhost:4173
 ```
 
-此模式下前端自动回落到 `data/content.seed.json` 渲染，咨询提交会暂存在浏览器本地（不丢数据）。
+此模式下前端自动回落到 `data/content.seed.json` 渲染。咨询信息**不会保存到浏览器，也不能提交到后台**，界面会明确提示稍后重试；正式收集姓名、手机、邮箱等个人信息时必须启用后端，并补充隐私告知、保存期限与删除机制。
 
 ### 4.2 完整本地开发
 
 **前置**：已安装并启动 PostgreSQL，创建好数据库（如 `foodsafety_outreach`）。
 
 ```bash
-# 1) 配置后端环境变量
-cp .env.example backend/.env
-# 编辑 backend/.env：填写 DATABASE_URL、生成 JWT_SECRET
-openssl rand -base64 48     # 用于 JWT_SECRET
+# 1) 安装锁文件指定的依赖（根依赖用于 smoke，后端依赖用于 API）
+npm ci
+npm --prefix backend ci
 
-# 2) 安装依赖与初始化数据库
-npm --prefix backend install
+# 2) 配置后端环境变量
+cp .env.example backend/.env
+# 编辑 backend/.env，至少填写：
+# DATABASE_URL、JWT_SECRET、SEED_ADMIN_PASSWORD
+openssl rand -base64 48     # 生成 JWT_SECRET
+openssl rand -base64 18     # 生成首次管理员密码
+
+# 3) 初始化数据库
 npm run db:generate
 npm run db:push
-npm run seed                # 建管理员 + 导入章节内容
+npm run seed                # 创建管理员并导入章节内容
 
-# 3) 启动后端（同源托管静态资源）
+# 4) 启动后端（同源托管静态资源）
 npm run dev                 # http://localhost:3000
 ```
+
+`SEED_ADMIN_PASSWORD` 为空时，种子脚本会跳过管理员创建；初始化后请立即登录并修改该密码。生产环境应使用 `npm ci`，避免安装结果偏离 lockfile。
 
 后端默认 `SERVE_STATIC=true`，同源托管仓库根目录，无需另起静态服务器。
 访问：前台 `http://localhost:3000/`，后台 `http://localhost:3000/admin.html`。
@@ -145,11 +154,17 @@ npm run dev                 # http://localhost:3000
 npm run build          # 构建 dist/
 npm run serve          # 本地静态预览
 npm run smoke          # 章节渲染冒烟（改动渲染器后必跑，防白屏）
-npm run db:push        # 同步表结构（开发）
-npm run db:deploy      # 应用迁移（生产）
+npm run db:push        # 同步表结构（仅开发/当前首次部署过渡使用）
+npm run db:deploy      # 应用已提交的 Prisma migrations
+npm --prefix backend run db:migrate # 生成并应用开发迁移
 npm run seed           # 导入种子（管理员 + 内容）
 npm run seed:content   # 仅重新导入章节内容
+npm run dingtalk:test  # 发送钉钉机器人测试消息（会真实外发）
+npm audit
+npm --prefix backend audit
 ```
+
+> 仓库已提交 Prisma 初始迁移。新版部署脚本会为旧版 `db push` 数据库登记一次基线，再执行 `migrate deploy` 和 schema drift 校验；迁移失败时不会自动回退到 `db push`。
 
 ---
 
@@ -170,13 +185,14 @@ npm run seed:content   # 仅重新导入章节内容
 
 ## 6. API 概览
 
-基础路径 `/api`，生产由 Caddy 同域反代到 `127.0.0.1:3100`。受保护接口需 `Authorization: Bearer <JWT>`。
+基础路径 `/api`，生产由 Caddy 同域反代到只监听本机的 `127.0.0.1:3100`。受保护接口需 `Authorization: Bearer <JWT>`。
 
 ### 公开接口
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
 | GET | `/health`、`/api/health` | 健康检查 |
+| GET | `/ready`、`/api/ready` | 就绪检查（PostgreSQL + 内容初始化） |
 | GET | `/api/content` | 全部章节内容 |
 | GET | `/api/content/:key` | 单个章节内容 |
 | GET | `/api/content/meta` | 章节 key 白名单 |
@@ -220,6 +236,8 @@ sudo bash deploy/deploy.sh deploy/deploy.conf
 - **数据盘模式**（`DATA_ROOT` 非空）：代码、日志、独立 PG 表空间全部落数据盘；`findmnt` 校验挂载，自动写入 AppArmor 放行规则
 - **部署前预检**：API/前端端口占用、域名与既有站点冲突、数据盘挂载状态，重复部署自动识别放行自身
 
+Express 默认只监听 `127.0.0.1`，API 端口不直接暴露公网；主机防火墙与云安全组仍应作为第二道边界，只开放 80/443 和必要的运维端口。
+
 ### 7.2 生产实例（腾讯云 CVM · 111.231.166.161）
 
 ```bash
@@ -234,7 +252,7 @@ sudo bash deploy/deploy.sh deploy/deploy.tencent-cvm.conf
 | --- | --- |
 | 域名 | `foodsafety.digifluidic.com`（DNS A 记录 → 111.231.166.161，Caddy 自动 HTTPS） |
 | 整套落盘 | `/mnt/datadisk0/foodsafety-outreach`（代码 + dist）、`/mnt/datadisk0/logs/foodsafety-outreach`（日志）、`/mnt/datadisk0/pg/foodsafety-outreach`（独立表空间），**系统盘零增量** |
-| 后端端口 | `3100`（仅内网，与同机其它业务错开） |
+| 后端端口 | `127.0.0.1:3100`（仅本机监听，由 Caddy 反代） |
 | 数据库 | 独立库 `foodsafety_outreach` + 角色 `foodsafety`，复用同机已有 PostgreSQL 14 实例，不影响其它业务 |
 | 初始管理员 | `admin`，密码在**首次部署**结束时输出一次，登录后台后立即修改 |
 
@@ -252,7 +270,8 @@ systemctl status foodsafety-outreach-api       # 后端状态
 journalctl -u foodsafety-outreach-api -n 50    # 近期日志
 ls /mnt/datadisk0/logs/foodsafety-outreach     # 落盘日志（app.out.log / app.err.log）
 systemctl reload caddy                         # 重载反代配置
-curl http://127.0.0.1:3100/health              # 健康检查
+curl http://127.0.0.1:3100/health              # 存活检查
+curl http://127.0.0.1:3100/ready               # 就绪检查（部署验证使用）
 ```
 
 ⚠️ **改完源码必须同步到线上**（生产 Caddy 只 serve `dist/`，不读源码），在服务器仓库目录（`/mnt/datadisk0/foodsafety-outreach`）执行：
@@ -287,16 +306,69 @@ systemctl restart foodsafety-outreach-api     # 后端：重启服务
 ## 9. 安全设计摘要
 
 - **启动守卫**：`JWT_SECRET` 缺失/弱密钥、`CORS_ORIGIN` 含通配符 → 进程拒绝启动。
-- **登录保护**：统一失败文案 + 假 bcrypt 比较拉平时序（防用户名枚举与侧信道）；生产 5 次失败/15 分钟临时锁定。
-- **令牌吊销**：改密 / 登出即时吊销，降权不等 JWT 自然过期；过期吊销记录每 15 分钟清理。
+- **登录保护**：统一失败文案 + 假 bcrypt 比较拉平时序（防用户名枚举与侧信道）；同一 IP + 用户名 5 次失败/15 分钟临时锁定，避免单一来源锁死全局账号。
+- **令牌吊销**：改密与全量吊销在同一事务中完成，单令牌吊销失败会使接口失败，不再伪装成功；全量吊销记录不会过期后让旧 JWT 复活。
 - **输入安全**：XSS / SQL 注入特征检测、原型链污染键剔除、JSON 深度与体积上限、链接协议白名单、CSV 公式注入防护。
 - **审计留痕**：登录、内容变更、留言处理、改密等由服务端强制写入，不信任客户端上报。
 - **单实例假设**：限流计数存进程内存，水平扩容前须迁移到 Redis（与参考系统同款约束）。
+- **健康检查边界**：`/health` 只检查进程存活，`/ready` 检查 PostgreSQL 和站点内容初始化；钉钉通知仍是非阻断旁路。
 
 详见 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) 第 6 节。
 
 ---
 
-## 10. License
+## 10. 代码审阅结论与升级路线
+
+### 10.1 本次验证结果（2026-09-08）
+
+| 检查 | 结果 | 说明 |
+| --- | --- | --- |
+| `npm run smoke` | 通过 | 12 项通过、0 项失败；覆盖 8 个章节、基础 XSS、隐私迁移、玻璃结构和空 payload |
+| `npm run build` | 通过 | `dist/` 成功生成，HTML 内联滤镜与必需 CSS 校验通过 |
+| JS / Shell / JSON 语法 | 通过 | 全部 JS 执行 `node --check`、部署脚本执行 `bash -n`、核心 JSON 可解析 |
+| 根依赖 `npm audit` | 通过 | 0 个已知漏洞 |
+| 后端依赖 `npm audit` | 通过 | Express 5 升级后为 0 个已知漏洞 |
+| `npm test` | 通过 | 12 项前端冒烟 + 10 项后端安全/异常链测试 |
+| `npm run lint` | 通过 | ESLint 已配置并覆盖 `backend/`、`js/`、`scripts/` |
+| 本地 PostgreSQL 实库演练 | 通过 | 空库迁移、旧 `db push` 库补基线、drift 检查、seed、`/ready`、强制改密和旧令牌失效均通过 |
+| GitHub Actions | 已配置 | CI 执行安装、Lint、构建、测试和两级依赖审计 |
+
+### 10.2 已完成修复
+
+| 原问题 | 修复结果 |
+| --- | --- |
+| API 监听所有网卡、直接读取 `X-Forwarded-For` | 默认 `HOST=127.0.0.1`，真实 IP 统一使用 Express 的可信代理解析；生产误设 `SERVE_STATIC=true` 会拒绝启动 |
+| Express 4 / `qs` 中危漏洞及 async 错误链 | 升级到 Express 5.2.1，bcryptjs / dotenv 同步升级；async rejection 由统一错误处理器接管，bcrypt 比较改为异步避免阻塞事件循环，依赖审计清零 |
+| Prisma 无迁移历史、生产回退 `db push` | 增加初始 migration；部署脚本兼容旧库基线、强制 `migrate deploy` 与 drift 检查，失败不再回退 |
+| 改密/登出吊销失败仍返回成功 | 吊销错误向上传播；密码更新和全量吊销进入同一事务；全量吊销标记不会过期后使旧 JWT 复活；首次改密限制由服务端强制执行 |
+| 健康检查不能发现数据库故障 | 保留 `/health` 存活检查，新增 `/ready` 检查 PostgreSQL 与内容初始化，部署验证改用 `/ready` |
+| 静态模式和审计日志保存个人信息 | 前端不再把咨询内容写入 `localStorage`，并清理旧版遗留键；新审计不再记录姓名/手机。历史审计按“不得修改/删除”规范保留，需由业务方确定合规归档策略 |
+| editor 看得到 owner 操作 | 后台按角色隐藏恢复、删除、导出和审计入口，后端权限校验继续保留 |
+| 非法 URL hash 可破坏页面初始化 | 改为安全解码后按 ID 查找，非法编码直接忽略 |
+| 缺少质量门禁 | 增加 ESLint、10 项后端测试、统一 `npm run check` 和 GitHub Actions CI |
+
+### 10.3 仍需在部署环境完成
+
+| 优先级 | 事项 | 说明 |
+| --- | --- | --- |
+| P0 · 部署前 | 备份并演练旧库迁移基线 | 本地没有生产 PostgreSQL 数据，无法替代真实备份和预发布演练。首次使用新版部署脚本前先 `pg_dump`，在副本上验证 baseline、`migrate deploy` 和 `/ready`。 |
+| P1 · 隐私 | 确定个人信息保留政策 | 代码已停止浏览器持久化和审计 PII，但数据库中的咨询记录仍需要业务方确定告知文本、保存期限、删除/匿名化流程和访问责任人。 |
+| P1 · 扩容 | 将限流迁移到共享存储 | 当前限流仍在进程内存中，只支持单实例。接入 Redis 等共享存储后才能水平扩容。 |
+| P2 · 升级 | Prisma 5 单独升级 | ESLint 已升级到 10；Prisma 7 仍涉及配置方式和数据库适配器变化，应在数据库集成测试补齐后单独升级。 |
+| P2 · 测试 | 增加真实 PostgreSQL 与浏览器 E2E | 当前后端测试使用隔离 mock，尚未覆盖真实事务、迁移、Caddy 反代和完整后台操作流程。 |
+
+本地与 CI 的统一验证入口：
+
+```bash
+npm ci
+npm --prefix backend ci
+npm run check
+npm audit
+npm --prefix backend audit
+```
+
+---
+
+## 11. License
 
 本项目用于学术交流、方案汇报与项目展示。正式对外发布前请补充真实业务资料、版权资源说明与隐私政策。

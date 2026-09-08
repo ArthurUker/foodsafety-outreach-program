@@ -137,7 +137,7 @@ renderNav() + initRouter() + initReveal() + initInquiryForm()
 表单前端校验（姓名/手机号/邮箱/内容长度）
   → POST /api/inquiries（限流 3 条/10 分钟/IP）
   → 服务端净化 + 落库 + 审计
-  → 后端不可用时：写入 localStorage 队列并提示（不丢数据）
+  → 后端不可用时：明确提示未提交，不在浏览器持久化个人信息
 ```
 
 ---
@@ -176,7 +176,7 @@ renderNav() + initRouter() + initReveal() + initInquiryForm()
 
 - bcrypt（10 轮）存储；密码强度 ≥8 位且含字母与数字
 - 登录失败统一文案；用户不存在时执行一次假 bcrypt 比较拉平响应时序
-- 生产 5 次失败 / 15 分钟 → 423 临时锁定（计数查询失败 fail-open，不误伤）
+- 同一 IP + 用户名 5 次失败 / 15 分钟 → 423 临时锁定（计数查询失败 fail-open，不误伤）
 - DB 回查为权威角色源；连续回查失败 ≥3 次才 503
 
 ### 6.3 输入
@@ -188,7 +188,7 @@ renderNav() + initRouter() + initReveal() + initInquiryForm()
 
 ### 6.4 输出
 
-- 安全响应头：`nosniff`、`X-Frame-Options`（API 为 DENY）、`Referrer-Policy`、API 路径 `CSP: default-src 'none'`
+- 安全响应头：`nosniff`、`X-Frame-Options`（API 为 DENY）、`Referrer-Policy`、API 与静态页面 CSP
 - 生产配置 `DOMAIN` 时下发 HSTS
 - 前端渲染全程 `textContent`，无 innerHTML
 
@@ -205,14 +205,15 @@ renderNav() + initRouter() + initReveal() + initInquiryForm()
 ### 7.1 约束
 
 - **单实例部署**：限流计数存内存，扩容前须迁移 Redis（见 `PROJECT_CONVENTIONS.md` 规则十）
-- **内容编辑为 JSON 编辑**：当前后台是 JSON textarea，对非技术同事不友好。
-  若要改成表单化编辑，需要在 registry 中补一份字段 schema（后续可演进方向）
+- **内容结构仍以 JSON 为契约**：后台已提供可视化画布，但未识别的复杂字段仍需切换 JSON 模式。
+  若要做到完全表单化，需要在 registry 中补一份字段 schema（后续可演进方向）
 - 无图片上传能力：内容中的图片需通过外链或手动放置
 
 ### 7.2 待办
 
 - [ ] 章节内容的表单化编辑（基于 payload schema 自动生成表单）
 - [ ] 前台内容的多版本草稿 / 预览机制
-- [ ] 单元测试（Jest）与 E2E（Cypress）骨架
+- [x] Node 内置测试 + Supertest 的安全与 async 错误链基线
+- [ ] 真实 PostgreSQL 集成测试与浏览器 E2E
 - [ ] 图片资源管理（上传 + CDN）
 - [ ] 访问统计与来源分析
