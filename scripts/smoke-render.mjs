@@ -19,11 +19,15 @@ import { fileURLToPath, pathToFileURL } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true });
+const dom = new JSDOM('<!doctype html><html><body></body></html>', {
+  pretendToBeVisual: true,
+  url: 'http://localhost/',
+});
 global.window = dom.window;
 global.document = dom.window.document;
 global.Node = dom.window.Node;
 global.HTMLElement = dom.window.HTMLElement;
+global.localStorage = dom.window.localStorage;
 global.IntersectionObserver = class {
   observe() {}
   unobserve() {}
@@ -33,6 +37,8 @@ global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
 
 const registryUrl = pathToFileURL(path.join(ROOT, 'js/modules/registry.js')).href;
 const { SECTION_ORDER, SECTION_REGISTRY } = await import(registryUrl);
+const inquiryFormUrl = pathToFileURL(path.join(ROOT, 'js/modules/inquiryForm.js')).href;
+const { initInquiryForm } = await import(inquiryFormUrl);
 
 const seedPath = path.join(ROOT, 'data/content.seed.json');
 const seed = JSON.parse(fs.readFileSync(seedPath, 'utf8'));
@@ -88,6 +94,18 @@ try {
   report(true, 'XSS 注入：恶意内容按纯文本渲染，未生成可执行节点');
 } catch (err) {
   report(false, `XSS 注入：${err.message}`);
+}
+
+try {
+  localStorage.setItem('cfsg_inquiry_queue', '[{"phone":"13800000000"}]');
+  localStorage.setItem('cfsg_inquiry_draft', '{"email":"legacy@example.com"}');
+  initInquiryForm();
+  if (localStorage.getItem('cfsg_inquiry_queue') || localStorage.getItem('cfsg_inquiry_draft')) {
+    throw new Error('旧版咨询个人信息未清理');
+  }
+  report(true, '隐私迁移：旧版浏览器咨询缓存已清理');
+} catch (err) {
+  report(false, `隐私迁移：${err.message}`);
 }
 
 console.log('\n— 玻璃材质 —');
