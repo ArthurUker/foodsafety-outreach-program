@@ -43,7 +43,7 @@ LOG_DIR="${LOG_DIR:-/var/log/${SYSTEM_NAME}}"
 API_PORT="${API_PORT:-3000}"
 FRONTEND_PORT="${FRONTEND_PORT:-8080}"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
-NODE_VERSION="${NODE_VERSION:-20}"
+NODE_VERSION="${NODE_VERSION:-20}" # 可填主版本（自动取最新补丁）或完整版本（如 20.19.5）
 PG_HOST="${PG_HOST:-127.0.0.1}"
 PG_PORT="${PG_PORT:-5432}"
 PG_DB_NAME="${PG_DB_NAME:-foodsafety_outreach}"
@@ -129,16 +129,30 @@ if [[ "$INSTALL_RUNTIME" == "true" ]]; then
     apt-get update -y && apt-get install -y caddy
   fi
 
-  # Node.js（若不存在或主版本不符，直接装官方二进制）
-  if ! command -v node >/dev/null 2>&1 || [[ "$(node -v | cut -d. -f1)" != "v${NODE_VERSION}" ]]; then
+  # Node.js：主版本配置自动解析最新补丁；完整版本配置保持可复现。下载后校验官方 SHA256。
+  NODE_RESOLVED_VERSION="$NODE_VERSION"
+  if [[ "$NODE_VERSION" =~ ^[0-9]+$ ]]; then
+    NODE_RESOLVED_VERSION="$(curl -fsSL https://nodejs.org/dist/index.tab \
+      | awk -v prefix="v${NODE_VERSION}." 'NR > 1 && !found && index($1, prefix) == 1 { sub(/^v/, "", $1); print $1; found=1 }')"
+    [[ -n "$NODE_RESOLVED_VERSION" ]] || die "无法解析 Node.js ${NODE_VERSION}.x 最新版本"
+  fi
+  [[ "$NODE_RESOLVED_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+    || die "NODE_VERSION 必须是主版本或完整语义版本，例如 20 或 20.19.5"
+
+  if ! command -v node >/dev/null 2>&1 || [[ "$(node -v)" != "v${NODE_RESOLVED_VERSION}" ]]; then
     ARCH="$(dpkg --print-architecture)"
     case "$ARCH" in
       amd64) NODE_ARCH="x64" ;;
       arm64) NODE_ARCH="arm64" ;;
       *) die "不支持的架构：$ARCH" ;;
     esac
-    NODE_TARBALL="node-v${NODE_VERSION}.11.0-linux-${NODE_ARCH}.tar.xz"
-    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}.11.0/${NODE_TARBALL}" -o "/tmp/${NODE_TARBALL}"
+    NODE_TARBALL="node-v${NODE_RESOLVED_VERSION}-linux-${NODE_ARCH}.tar.xz"
+    NODE_DIST_URL="https://nodejs.org/dist/v${NODE_RESOLVED_VERSION}"
+    curl -fsSL "${NODE_DIST_URL}/${NODE_TARBALL}" -o "/tmp/${NODE_TARBALL}"
+    NODE_EXPECTED_SHA="$(curl -fsSL "${NODE_DIST_URL}/SHASUMS256.txt" | awk -v name="$NODE_TARBALL" '$2 == name { print $1 }')"
+    [[ -n "$NODE_EXPECTED_SHA" ]] || die "未在 Node.js 官方校验文件中找到 ${NODE_TARBALL}"
+    echo "${NODE_EXPECTED_SHA}  /tmp/${NODE_TARBALL}" | sha256sum -c - \
+      || die "Node.js 安装包 SHA256 校验失败"
     rm -rf /usr/local/node
     mkdir -p /usr/local/node
     tar -xJf "/tmp/${NODE_TARBALL}" -C /usr/local/node --strip-components=1
@@ -148,6 +162,9 @@ if [[ "$INSTALL_RUNTIME" == "true" ]]; then
   fi
   node -v && npm -v
 fi
+
+NODE_BIN="$(command -v node || true)"
+[[ -n "$NODE_BIN" ]] || die "未找到 Node.js 可执行文件"
 
 # =========================================================
 # 2. 系统用户与目录
@@ -269,6 +286,8 @@ if [[ "$FIRST_DEPLOY" == "true" ]]; then
   cat > "$ENV_FILE" <<EOF
 NODE_ENV=production
 PORT=${API_PORT}
+HOST=127.0.0.1
+TRUST_PROXY_HOPS=1
 SERVE_STATIC=false
 DATABASE_URL=${DATABASE_URL}
 JWT_SECRET=${JWT_SECRET_VALUE}
@@ -290,6 +309,8 @@ EOF
 else
   # 保留既有密钥与账号口令，仅补齐新增配置项
   grep -q '^JWT_EXPIRE=' "$ENV_FILE" || echo 'JWT_EXPIRE=8h' >> "$ENV_FILE"
+  grep -q '^HOST=' "$ENV_FILE" || echo 'HOST=127.0.0.1' >> "$ENV_FILE"
+  grep -q '^TRUST_PROXY_HOPS=' "$ENV_FILE" || echo 'TRUST_PROXY_HOPS=1' >> "$ENV_FILE"
   grep -q '^BODY_LIMIT=' "$ENV_FILE" || echo 'BODY_LIMIT=2mb' >> "$ENV_FILE"
   grep -q '^AUTO_SEED_CONTENT=' "$ENV_FILE" || echo 'AUTO_SEED_CONTENT=true' >> "$ENV_FILE"
   grep -q '^DINGTALK_WEBHOOK=' "$ENV_FILE" || echo 'DINGTALK_WEBHOOK=' >> "$ENV_FILE"
@@ -303,30 +324,46 @@ fi
 # =========================================================
 log "步骤 6/9：安装依赖并同步数据库结构"
 cd "$REPO_ROOT/backend"
-sudo -u "$SYSTEM_NAME" npm ci --omit=dev || sudo -u "$SYSTEM_NAME" npm install --omit=dev
+# Prisma CLI 是部署期工具：先按 lockfile 安装完整依赖完成迁移，最后再 prune 开发依赖。
+sudo -u "$SYSTEM_NAME" npm ci
 sudo -u "$SYSTEM_NAME" npx prisma generate
 
-# 注意：仓库无 prisma/migrations 时 migrate deploy 会"空成功"（No migration found 且退出码 0），
-# 不能据此判定表已就绪 —— 必须检测该情形并回退到 db push（2026-09-05 线上事故根因）。
-MIGRATE_OUTPUT="$(sudo -u "$SYSTEM_NAME" npx prisma migrate deploy 2>&1)" || true
-if echo "$MIGRATE_OUTPUT" | grep -q "No migration found"; then
-  log "仓库未包含 migrations 目录，使用 prisma db push 同步表结构"
-  sudo -u "$SYSTEM_NAME" npx prisma db push --skip-generate \
-    || die "prisma db push 失败，请检查 DATABASE_URL 与数据库连接"
-  echo "✅ 数据库结构已同步（db push）"
-elif echo "$MIGRATE_OUTPUT" | grep -qiE "error|failed"; then
-  warn "$MIGRATE_OUTPUT"
-  warn "migrate deploy 失败，回退到 prisma db push（首次部署常见）"
-  sudo -u "$SYSTEM_NAME" npx prisma db push --skip-generate \
-    || die "prisma db push 失败，请检查 DATABASE_URL 与数据库连接"
-else
-  echo "$MIGRATE_OUTPUT" | tail -3
-  echo "✅ 迁移已应用"
+# 旧版部署曾使用 db push，没有 _prisma_migrations 历史。仅当核心表已存在且迁移表不存在时，
+# 将初始 migration 标记为已应用；空库则让 migrate deploy 正常创建全部表。
+BASELINE_MIGRATION="20260908000000_init"
+APP_TABLE_EXISTS="$(sudo -u "$SYSTEM_NAME" psql "$DATABASE_URL" -tAc \
+  "SELECT to_regclass('public.\"AdminUser\"') IS NOT NULL" | tr -d '[:space:]')"
+MIGRATION_TABLE_EXISTS="$(sudo -u "$SYSTEM_NAME" psql "$DATABASE_URL" -tAc \
+  "SELECT to_regclass('public.\"_prisma_migrations\"') IS NOT NULL" | tr -d '[:space:]')"
+if [[ "$APP_TABLE_EXISTS" == "t" && "$MIGRATION_TABLE_EXISTS" != "t" ]]; then
+  log "检测到既有 db push 数据库，登记 Prisma 初始迁移基线"
+  # 先确认旧库与初始 schema 完全一致，避免给不兼容的数据库错误登记“已迁移”。
+  sudo -u "$SYSTEM_NAME" npx prisma migrate diff \
+    --from-url "$DATABASE_URL" \
+    --to-schema-datamodel prisma/schema.prisma \
+    --exit-code \
+    || die "既有数据库与初始 Prisma schema 不一致，拒绝登记迁移基线"
+  sudo -u "$SYSTEM_NAME" npx prisma migrate resolve --applied "$BASELINE_MIGRATION" \
+    || die "登记迁移基线失败；请勿继续部署"
 fi
+
+sudo -u "$SYSTEM_NAME" npx prisma migrate deploy \
+  || die "prisma migrate deploy 失败；已禁止自动回退 db push，请检查迁移与数据库状态"
+
+# 迁移后验证实际数据库结构与 schema 一致；有差异时退出码为 2，同样阻断部署。
+sudo -u "$SYSTEM_NAME" npx prisma migrate diff \
+  --from-url "$DATABASE_URL" \
+  --to-schema-datamodel prisma/schema.prisma \
+  --exit-code \
+  || die "数据库结构与 Prisma schema 不一致，请先修复 drift"
+
+sudo -u "$SYSTEM_NAME" npm prune --omit=dev
+echo "✅ 数据库迁移已应用且结构校验通过"
 
 if [[ "$FIRST_DEPLOY" == "true" && "$SEED_ON_FIRST_DEPLOY" == "true" ]]; then
   log "首次部署：执行 seed（建管理员 + 导入章节内容）"
-  sudo -u "$SYSTEM_NAME" env "$(grep -v '^#' "$ENV_FILE" | xargs)" node prisma/seed.js || warn "seed 执行失败，可稍后手动执行"
+  # seed.js 通过 dotenv 读取工作目录下的 backend/.env，避免 shell 展开破坏含空格或特殊字符的值。
+  sudo -u "$SYSTEM_NAME" "$NODE_BIN" prisma/seed.js || die "首次 seed 失败，部署已中止"
 fi
 
 # =========================================================
@@ -359,7 +396,7 @@ Type=simple
 User=${SYSTEM_NAME}
 WorkingDirectory=${REPO_ROOT}/backend
 EnvironmentFile=${REPO_ROOT}/backend/.env
-ExecStart=/usr/local/bin/node server.js
+ExecStart=${NODE_BIN} server.js
 Restart=on-failure
 RestartSec=5
 MemoryMax=${MEM_MAX}
@@ -396,6 +433,7 @@ ${SITE_ADDR} {${TLS_LINE}
         Referrer-Policy "no-referrer"
         -Server
         X-Frame-Options "SAMEORIGIN"
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
     }
 
     # HTML/JS/CSS 强制 no-cache：部署新版后浏览器不再使用启发式缓存的旧文件
@@ -409,6 +447,10 @@ ${SITE_ADDR} {${TLS_LINE}
     }
 
     handle /health {
+        reverse_proxy 127.0.0.1:${API_PORT}
+    }
+
+    handle /ready {
         reverse_proxy 127.0.0.1:${API_PORT}
     }
 
@@ -428,10 +470,10 @@ systemctl reload caddy || systemctl restart caddy
 # =========================================================
 log "健康检查"
 sleep 3
-if curl -fsS "http://127.0.0.1:${API_PORT}/health" >/dev/null; then
-  echo "✅ 后端健康检查通过（127.0.0.1:${API_PORT}/health）"
+if curl -fsS "http://127.0.0.1:${API_PORT}/ready" >/dev/null; then
+  echo "✅ 后端就绪检查通过（127.0.0.1:${API_PORT}/ready）"
 else
-  warn "后端健康检查未通过，请查看：journalctl -u ${APP_NAME} -n 50"
+  die "后端就绪检查未通过，请查看：journalctl -u ${APP_NAME} -n 50"
 fi
 if [[ -n "${DOMAIN:-}" ]]; then
   # 域名模式：Caddy 监听 80/443，本地用 Host 头探测（HTTP→HTTPS 308 属预期）
