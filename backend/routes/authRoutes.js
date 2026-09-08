@@ -42,6 +42,7 @@ export function createAuthRoutes({ prisma, authenticateUser, authService, rateLi
         detailsPath: 'username',
         detailsValue: username,
         since: new Date(Date.now() - lockWindowMs),
+        ip: req.ip,
       });
       if (recentFailures >= lockThreshold) {
         return res.status(423).json({ error: '账号因多次登录失败被临时锁定，请稍后再试或联系平台管理员。' });
@@ -60,10 +61,10 @@ export function createAuthRoutes({ prisma, authenticateUser, authService, rateLi
       const user = await prisma.adminUser.findUnique({ where: { username } });
 
       if (!user) {
-        dummyCompare(password); // 拉平「用户不存在」分支的响应时间
+        await dummyCompare(password); // 拉平「用户不存在」分支的响应时间
         return fail('user_not_found');
       }
-      if (!verifyPassword(password, user.passwordHash)) return fail('bad_password');
+      if (!(await verifyPassword(password, user.passwordHash))) return fail('bad_password');
       if (user.status !== 'active') return fail('account_disabled');
 
       const { token, expiresIn } = authService.issueToken(user);
@@ -89,7 +90,7 @@ export function createAuthRoutes({ prisma, authenticateUser, authService, rateLi
         },
       });
     } catch (err) {
-      // Express 4 不捕获 async 路由异常（如数据库不可用/表缺失），未处理拒绝会直接击穿进程。
+      // 登录失败需要稳定、克制的对外响应；详细错误只写服务端日志。
       console.error('[auth.login]', err?.message || err);
       if (!res.headersSent) res.status(500).json({ error: '登录服务暂时不可用，请稍后再试。' });
     }
@@ -128,18 +129,21 @@ export function createAuthRoutes({ prisma, authenticateUser, authService, rateLi
 
     try {
       const user = await prisma.adminUser.findUnique({ where: { id: req.user.userId } });
-      if (!user || !verifyPassword(currentPassword, user.passwordHash)) {
+      if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
         return res.status(400).json({ error: '当前密码不正确。' });
       }
       if (!isStrongPassword(newPassword)) {
         return res.status(400).json({ error: '新密码至少 8 位，且必须同时包含字母和数字。' });
       }
 
-      await prisma.adminUser.update({
-        where: { id: user.id },
-        data: { passwordHash: hashPassword(newPassword), mustChangePassword: false },
+      const passwordHash = await hashPassword(newPassword);
+      await prisma.$transaction(async (tx) => {
+        await tx.adminUser.update({
+          where: { id: user.id },
+          data: { passwordHash, mustChangePassword: false },
+        });
+        await authService.revokeAllUserTokens(user.id, tx);
       });
-      await authService.revokeAllUserTokens(user.id);
       await writeAuditLog(prisma, { req, actor: req.user, action: 'change_password', resourceType: 'auth' });
 
       res.json({ success: true, message: '密码已更新，请使用新密码重新登录。' });

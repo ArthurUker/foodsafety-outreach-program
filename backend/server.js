@@ -1,5 +1,5 @@
 /**
- * 校园食安推广方案站 —— 后端入口（Express 4 / ESM）
+ * 校园食安推广方案站 —— 后端入口（Express 5 / ESM）
  *
  * 设计要点（沿用 foodtestlab 的成熟模式）：
  * - 启动期安全守卫：JWT_SECRET 缺失/弱密钥、CORS 通配符 → 直接拒绝启动（fail-closed）。
@@ -25,13 +25,14 @@ import { createInquiryRoutes } from './routes/inquiryRoutes.js';
 import { createAuditRoutes } from './routes/auditRoutes.js';
 import { createSettingRoutes } from './routes/settingRoutes.js';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+const HOST = process.env.HOST || '127.0.0.1';
 const serveStatic = process.env.SERVE_STATIC === 'true';
 
 // ============ 启动守卫 ============
@@ -46,6 +47,30 @@ if (corsConfigHasWildcard(process.env.CORS_ORIGIN)) {
       '请配置显式来源白名单，例如 CORS_ORIGIN=https://your.domain',
   );
   process.exit(1);
+}
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65_535) {
+  console.error('[FATAL] PORT 必须是 1-65535 的整数');
+  process.exit(1);
+}
+if (process.env.NODE_ENV === 'production' && serveStatic) {
+  console.error('[FATAL] 生产环境禁止 SERVE_STATIC=true；请由 Caddy 托管 dist/');
+  process.exit(1);
+}
+for (const name of [
+  'RATE_LIMIT_MAX_REQUESTS',
+  'RATE_LIMIT_WINDOW_MS',
+  'LOGIN_RATE_LIMIT_MAX',
+  'LOGIN_RATE_LIMIT_WINDOW_MS',
+  'LOGIN_FAIL_LOCK_THRESHOLD',
+  'LOGIN_FAIL_LOCK_WINDOW_MS',
+]) {
+  if (process.env[name] !== undefined) {
+    const value = Number(process.env[name]);
+    if (!Number.isInteger(value) || value <= 0) {
+      console.error(`[FATAL] ${name} 必须是正整数`);
+      process.exit(1);
+    }
+  }
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -85,7 +110,8 @@ const allowedOrigins = parseAllowedOrigins();
 const allowedHostnames = parseAllowedHostnames();
 
 // ============ 中间件 ============
-app.set('trust proxy', 1); // 反代后获取真实客户端 IP（限流与审计依赖）
+const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '1', 10);
+app.set('trust proxy', Number.isInteger(trustProxyHops) && trustProxyHops >= 0 ? trustProxyHops : 1);
 app.use(rateLimit(RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS));
 
 app.use(
@@ -123,6 +149,11 @@ app.use((req, res, next) => {
   }
   if (req.path.startsWith('/api/')) {
     res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+  } else {
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'",
+    );
   }
   next();
 });
@@ -145,6 +176,22 @@ const healthCheck = (_req, res) => res.json({ status: 'ok', timestamp: new Date(
 app.get('/health', healthCheck);
 app.get('/api/health', healthCheck);
 
+const readinessCheck = async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    const sectionCount = await prisma.contentSection.count();
+    if (sectionCount === 0) {
+      return res.status(503).json({ status: 'not_ready', error: '站点内容尚未初始化。' });
+    }
+    return res.json({ status: 'ready', database: 'ok', sectionCount, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error('[readiness]', err.message);
+    return res.status(503).json({ status: 'not_ready', error: '数据库暂时不可用。' });
+  }
+};
+app.get('/ready', readinessCheck);
+app.get('/api/ready', readinessCheck);
+
 // ============ 路由 ============
 app.use('/api/auth', createAuthRoutes({ prisma, authenticateUser, authService, rateLimitBy }));
 app.use('/api/content', createContentRoutes({ prisma, authenticateUser, authorizeRoles }));
@@ -159,12 +206,13 @@ app.use(errorHandler);
 // ============ 启动 ============
 const REVOCATION_CLEANUP_INTERVAL_MS = 15 * 60 * 1000;
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, HOST, () => {
   console.log(`\n${'='.repeat(60)}`);
   console.log('🚀 校园食安推广方案站 API 已启动');
   console.log(`${'='.repeat(60)}`);
-  console.log(`📍 监听地址: http://localhost:${PORT}`);
-  console.log(`📍 健康检查: http://localhost:${PORT}/health`);
+  console.log(`📍 监听地址: http://${HOST}:${PORT}`);
+  console.log(`📍 存活检查: http://${HOST}:${PORT}/health`);
+  console.log(`📍 就绪检查: http://${HOST}:${PORT}/ready`);
   console.log(`🔐 JWT: ✅ 已配置（有效期 ${JWT_EXPIRE}）`);
   console.log(`🗄️  数据库: PostgreSQL (Prisma)`);
   console.log(`📦 CORS 白名单: ${allowedOrigins.join(', ')}`);

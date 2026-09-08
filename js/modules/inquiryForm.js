@@ -1,36 +1,28 @@
 /**
- * 咨询表单：前端校验 + 提交 + 离线降级。
+ * 咨询表单：前端校验 + 提交。
  *
- * 后端可用时 POST /api/inquiries 落库；后端不可用时写入 localStorage 队列并提示，
- * 保证纯静态部署下用户提交不丢失（后续可导出或补提）。
+ * 姓名、手机、邮箱和留言属于个人信息，不在浏览器持久化。后端不可用时明确提示
+ * “未提交成功”，由用户在服务恢复后重新提交。
  */
 
 import { api } from '../core/api.js';
 
-const STORAGE_KEY = 'cfsg_inquiry_queue';
 const PHONE_RE = /^1[3-9]\d{9}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LEGACY_STORAGE_KEYS = ['cfsg_inquiry_queue', 'cfsg_inquiry_draft'];
+
+function clearLegacyLocalData() {
+  try {
+    LEGACY_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // 浏览器禁用站点存储时无需处理
+  }
+}
 
 function showNote(node, message, tone) {
   if (!node) return;
   node.textContent = message;
   node.className = `form-note ${tone === 'error' ? 'is-error' : tone === 'success' ? 'is-success' : ''}`;
-}
-
-function readQueue() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function writeQueue(items) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch {
-    /* 隐私模式下忽略 */
-  }
 }
 
 function validate(values) {
@@ -44,6 +36,8 @@ function validate(values) {
 }
 
 export function initInquiryForm() {
+  // v2.1 及更早版本曾在本地持久化咨询内容；升级后主动清理遗留个人信息。
+  clearLegacyLocalData();
   const form = document.getElementById('inquiryForm');
   if (!form) return;
 
@@ -60,16 +54,6 @@ export function initInquiryForm() {
       org: form.org?.value?.trim() || '',
       message: form.message?.value?.trim() || '',
     };
-
-    // 先做一次本地校验，命中异常数据直接提示（另存一份到 localStorage 兜底）
-    try {
-      localStorage.setItem(
-        'cfsg_inquiry_draft',
-        JSON.stringify({ ...values, savedAt: new Date().toISOString() }),
-      );
-    } catch {
-      /* 忽略 */
-    }
 
     const error = validate(values);
     if (error) {
@@ -88,13 +72,9 @@ export function initInquiryForm() {
     } catch (err) {
       const status = err.status || 0;
       if (status === 0) {
-        // 网络不可达 / 无后端：写入本地队列，保证不丢
-        const queue = readQueue();
-        queue.push({ ...values, createdAt: new Date().toISOString() });
-        writeQueue(queue);
         showNote(
           note,
-          '当前无法连接服务器，信息已暂存在本机。恢复服务后可再次提交，或联系我们获取补提方式。',
+          '当前无法连接服务器，本次信息未提交、也未保存在浏览器中。请稍后重新提交。',
           'error',
         );
       } else {

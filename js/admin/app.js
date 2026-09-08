@@ -72,6 +72,16 @@ function showAdmin() {
   adminView.hidden = false;
 }
 
+function applyRoleAccess() {
+  const isOwner = state.user?.role === 'owner';
+  const auditTab = document.querySelector('.admin-tab[data-tab="audit"]');
+  const auditPanel = document.querySelector('.admin-panel[data-panel="audit"]');
+  if (auditTab) auditTab.hidden = !isOwner;
+  if (auditPanel) auditPanel.hidden = !isOwner;
+  document.getElementById('resetBtn').hidden = !isOwner;
+  document.getElementById('exportCsvBtn').hidden = !isOwner;
+}
+
 /* ============================ 登录 ============================ */
 
 function initLogin() {
@@ -107,14 +117,23 @@ function initLogin() {
   });
 
   document.getElementById('logoutBtn').addEventListener('click', async () => {
+    let logoutError = null;
     try {
       await api.auth('POST', '/auth/logout');
-    } catch {
-      /* 即使失败也要清理本地态 */
+    } catch (err) {
+      // 本地令牌仍需立即清理，但必须告知用户服务端吊销可能未完成。
+      logoutError = err;
     }
     clearToken();
     state.user = null;
     showLogin();
+    if (logoutError) {
+      note(
+        document.getElementById('loginNote'),
+        `本机已退出，但服务端未确认令牌吊销：${logoutError.message || '服务暂时不可用'}。服务恢复后请重新登录并修改密码。`,
+        'error',
+      );
+    }
   });
 
   document.getElementById('gotoPasswordBtn').addEventListener('click', () => {
@@ -149,6 +168,7 @@ async function enterAdmin() {
   if (label && state.user) {
     label.textContent = `${state.user.displayName || state.user.username}（${state.user.role === 'owner' ? '管理员' : '编辑'}）`;
   }
+  applyRoleAccess();
 
   // 强制改密：只开放账号安全面板
   const forcePanel = document.getElementById('forcePanel');
@@ -161,7 +181,11 @@ async function enterAdmin() {
   // 不重置的话会残留上一次会话的激活面板（如账号安全）与旧提示。
   switchTab('content');
 
-  await Promise.all([loadSections(), loadInquiries(), loadAudit()]);
+  await Promise.all([
+    loadSections(),
+    loadInquiries(),
+    state.user?.role === 'owner' ? loadAudit() : Promise.resolve(),
+  ]);
 }
 
 /* ============================ Tab ============================ */
@@ -297,18 +321,20 @@ async function loadInquiries() {
           el('td.col-msg', { text: item.message }),
           el('td', {}, [statusSelect]),
           el('td', {}, [
-            el('div.row-actions', {}, [
-              el('button.btn.btn-ghost.btn-sm', {
-                type: 'button',
-                text: '删除',
-                on: {
-                  click: async () => {
-                    if (!window.confirm(`确认删除 ${item.name} 的留言？该操作不可恢复。`)) return;
-                    await deleteInquiry(item.id);
-                  },
-                },
-              }),
-            ]),
+            el('div.row-actions', {}, state.user?.role === 'owner'
+              ? [
+                  el('button.btn.btn-ghost.btn-sm', {
+                    type: 'button',
+                    text: '删除',
+                    on: {
+                      click: async () => {
+                        if (!window.confirm(`确认删除 ${item.name} 的留言？该操作不可恢复。`)) return;
+                        await deleteInquiry(item.id);
+                      },
+                    },
+                  }),
+                ]
+              : [el('span.muted', { text: '—' })]),
           ]),
         ]),
       );
@@ -371,6 +397,7 @@ async function exportCsv() {
 /* ============================ 审计日志 ============================ */
 
 async function loadAudit() {
+  if (state.user?.role !== 'owner') return;
   const action = document.getElementById('auditAction').value;
   const body = document.getElementById('auditBody');
   const noteNode = document.getElementById('auditNote');

@@ -51,11 +51,12 @@ export async function writeAuditLog(prisma, { actor, req, action, resourceType, 
  * 统计窗口内某类审计事件次数（用于登录失败锁定）。
  * 查询失败时 fail-open（不锁定），避免数据库抖动导致账号大面积不可用。
  */
-export async function countAuditEvents(prisma, { action, detailsPath, detailsValue, since }) {
+export async function countAuditEvents(prisma, { action, detailsPath, detailsValue, since, ip }) {
   try {
     const where = {
       action,
       createdAt: { gte: since },
+      ...(ip ? { ip } : {}),
     };
     if (detailsPath && detailsValue !== undefined) {
       where.details = { path: [detailsPath], equals: detailsValue };

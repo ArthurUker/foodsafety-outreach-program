@@ -30,7 +30,13 @@ export function initRouter({ navSelector = '[data-nav]', sectionsSelector = 'mai
     const href = link.getAttribute('href') || '';
     if (!href.startsWith('#') || href === '#') return;
 
-    const target = document.querySelector(href);
+    let targetId = href.slice(1);
+    try {
+      targetId = decodeURIComponent(targetId);
+    } catch {
+      return;
+    }
+    const target = document.getElementById(targetId);
     if (!target) return;
 
     event.preventDefault();

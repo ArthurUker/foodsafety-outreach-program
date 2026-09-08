@@ -16,23 +16,23 @@ const BCRYPT_ROUNDS = 10;
 // 不存在的用户也参与一次 bcrypt 比较，保证失败分支耗时量级一致
 const DUMMY_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
 
-export function hashPassword(plain) {
-  return bcrypt.hashSync(plain, BCRYPT_ROUNDS);
+export async function hashPassword(plain) {
+  return bcrypt.hash(plain, BCRYPT_ROUNDS);
 }
 
-export function verifyPassword(plain, hash) {
+export async function verifyPassword(plain, hash) {
   if (!hash) return false;
   try {
-    return bcrypt.compareSync(plain, hash);
+    return await bcrypt.compare(plain, hash);
   } catch {
     return false;
   }
 }
 
 /** 拉平时序：对不存在的用户执行一次等价耗时的比较 */
-export function dummyCompare(plain) {
+export async function dummyCompare(plain) {
   try {
-    bcrypt.compareSync(plain ?? '', DUMMY_HASH);
+    await bcrypt.compare(plain ?? '', DUMMY_HASH);
   } catch {
     /* 忽略 */
   }
@@ -80,27 +80,24 @@ export class AuthService {
   /** 精确吊销单个令牌 */
   async revokeToken(jti, userId, expiresAt) {
     if (!jti) return;
-    try {
-      await this.prisma.revokedToken.upsert({
-        where: { jti },
-        update: {},
-        create: { jti, userId: userId ?? null, expiresAt: expiresAt ?? new Date(Date.now() + 86_400_000) },
-      });
-    } catch (err) {
-      console.error('[REVOCATION_WRITE_FAILED]', err.message);
-    }
+    await this.prisma.revokedToken.upsert({
+      where: { jti },
+      update: {},
+      create: { jti, userId: userId ?? null, expiresAt: expiresAt ?? new Date(Date.now() + 86_400_000) },
+    });
   }
 
   /** 吊销某用户全部令牌（user_all 语义：按 userId 记录，校验时比对签发时间） */
-  async revokeAllUserTokens(userId, expiresAt = new Date(Date.now() + 7 * 86_400_000)) {
+  async revokeAllUserTokens(userId, client = this.prisma) {
     if (!userId) return;
-    try {
-      await this.prisma.revokedToken.create({
-        data: { jti: `user_all:${crypto.randomUUID()}`, userId, expiresAt },
-      });
-    } catch (err) {
-      console.error('[REVOCATION_WRITE_FAILED]', err.message);
-    }
+    await client.revokedToken.create({
+      data: {
+        jti: `user_all:${crypto.randomUUID()}`,
+        userId,
+        // 全量吊销是用户级安全边界，不能因清理任务过期后让旧的长生命周期 JWT “复活”。
+        expiresAt: new Date('9999-12-31T23:59:59.999Z'),
+      },
+    });
   }
 
   /**

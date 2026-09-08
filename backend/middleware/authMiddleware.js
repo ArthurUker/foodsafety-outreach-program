@@ -60,6 +60,9 @@ export function createAuthMiddleware({ prisma, jwtSecret, jwtExpire }) {
       };
       req.token = token;
       req.authService = authService;
+      if (user.mustChangePassword && req.baseUrl !== '/api/auth') {
+        return res.status(403).json({ error: '首次登录必须先修改密码。', code: 'PASSWORD_CHANGE_REQUIRED' });
+      }
       next();
     } catch (err) {
       consecutiveDbFailures += 1;

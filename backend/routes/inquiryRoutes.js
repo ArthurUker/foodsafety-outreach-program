@@ -91,7 +91,7 @@ export function createInquiryRoutes({ prisma, authenticateUser, authorizeRoles }
           action: 'inquiry_create',
           resourceType: 'inquiry',
           resourceId: created.id,
-          details: { name, org: org || null },
+          details: { hasOrg: Boolean(org) },
         });
         res.status(201).json({ success: true, id: created.id, message: '提交成功，我们会尽快与您联系。' });
         // 钉钉群通知（异步旁路：失败仅记录日志，不影响已落库留言与本次响应）
@@ -183,7 +183,7 @@ export function createInquiryRoutes({ prisma, authenticateUser, authorizeRoles }
         action: 'inquiry_delete',
         resourceType: 'inquiry',
         resourceId: removed.id,
-        details: { name: removed.name, phone: removed.phone },
+        details: { previousStatus: removed.status },
       });
       res.json({ success: true });
     } catch (err) {

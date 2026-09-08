@@ -128,7 +128,12 @@ async function bootstrap() {
 
     // 支持 #anchor 直达深链（渲染完成后再定位）
     if (window.location.hash) {
-      const target = document.querySelector(window.location.hash);
+      let target = null;
+      try {
+        target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+      } catch {
+        // 非法百分号编码不应影响页面主体渲染
+      }
       if (target) window.requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth' }));
     }
   } catch (err) {

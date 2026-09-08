@@ -29,6 +29,9 @@ async function seedAdmin() {
   const displayName = process.env.SEED_ADMIN_DISPLAY_NAME || '平台管理员';
 
   if (!password) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('生产环境必须设置 SEED_ADMIN_PASSWORD，拒绝在缺少初始管理员密码时继续 seed。');
+    }
     console.warn('⚠️  未设置 SEED_ADMIN_PASSWORD，跳过管理员创建（如需创建请补充环境变量后重跑）。');
     return null;
   }
@@ -48,7 +51,7 @@ async function seedAdmin() {
   const user = await prisma.adminUser.create({
     data: {
       username,
-      passwordHash: hashPassword(password),
+      passwordHash: await hashPassword(password),
       displayName,
       role: 'owner',
       mustChangePassword: true, // 首次登录强制改密
