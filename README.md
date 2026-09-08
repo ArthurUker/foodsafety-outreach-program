@@ -98,9 +98,9 @@ foodsafety-outreach-program/
 │   ├── dev-server.js           # 本地静态预览（零依赖）
 │   └── smoke-render.mjs        # 章节渲染冒烟测试（npm run smoke）
 ├── deploy/
-│   ├── deploy.sh               # 一键部署（通用脚本，内置环境自适应与预检）
-│   ├── deploy.example.conf     # 部署适配文件样例（复制后按服务器实际修改）
-│   └── deploy.tencent-cvm.conf # 腾讯云 CVM 生产适配（子域名 HTTPS + 整套落数据盘）
+│   ├── deploy.sh                        # 一键部署（通用脚本，内置环境自适应与预检）
+│   ├── deploy.example.conf              # 部署适配文件样例（复制后按服务器实际修改）
+│   └── deploy.tencent-cvm.example.conf  # 生产部署示例（占位符模板；真实生产配置不入库）
 ├── docs/                       # 项目文档
 └── legacy/                     # v1.0 遗留文件（仅供参考，不参与运行）
 ```
@@ -120,7 +120,7 @@ npm run serve
 
 ### 4.2 完整本地开发
 
-**前置**：已安装并启动 PostgreSQL，创建好数据库（如 `foodsafety_outreach`）。
+**前置**：已安装并启动 PostgreSQL，创建好数据库（如 `foodsafety_demo`）。
 
 ```bash
 # 1) 安装锁文件指定的依赖（根依赖用于 smoke，后端依赖用于 API）
@@ -185,7 +185,7 @@ npm --prefix backend audit
 
 ## 6. API 概览
 
-基础路径 `/api`，生产由 Caddy 同域反代到只监听本机的 `127.0.0.1:3100`。受保护接口需 `Authorization: Bearer <JWT>`。
+基础路径 `/api`，生产由 Caddy 同域反代到只监听本机的 `127.0.0.1:<API_PORT>`。受保护接口需 `Authorization: Bearer <JWT>`。
 
 ### 公开接口
 
@@ -238,54 +238,71 @@ sudo bash deploy/deploy.sh deploy/deploy.conf
 
 Express 默认只监听 `127.0.0.1`，API 端口不直接暴露公网；主机防火墙与云安全组仍应作为第二道边界，只开放 80/443 和必要的运维端口。
 
-### 7.2 生产实例（腾讯云 CVM · 111.231.166.161）
+### 7.2 生产部署示例
+
+以「腾讯云 CVM + 子域名 HTTPS + 整套落数据盘」拓扑为例。**真实生产配置由服务器本地未入库的 `deploy/deploy.prod.conf` 提供，不提交到仓库**：
 
 ```bash
+# 1) 生成生产私有配置（已被 .gitignore 忽略，不会入库）
+cp deploy/deploy.tencent-cvm.example.conf deploy/deploy.prod.conf
+# 2) 在 deploy/deploy.prod.conf 中填入真实值：<YOUR_DOMAIN>、<DATA_ROOT>、<DATABASE_NAME>、<DATABASE_USER> 等
+
+# 3) 部署（在服务器上执行）
 git clone git@github.com:ArthurUker/foodsafety-outreach-program.git /tmp/fsop-deploy
 cd /tmp/fsop-deploy
-sudo bash deploy/deploy.sh deploy/deploy.tencent-cvm.conf
+sudo bash deploy/deploy.sh deploy/deploy.prod.conf
 ```
 
-适配要点（详见 `deploy/deploy.tencent-cvm.conf` 内注释）：
+参数概览（占位符说明，详见 `deploy/deploy.tencent-cvm.example.conf` 内注释）：
 
-| 项 | 值 |
+| 项 | 说明 |
 | --- | --- |
-| 域名 | `foodsafety.digifluidic.com`（DNS A 记录 → 111.231.166.161，Caddy 自动 HTTPS） |
-| 整套落盘 | `/mnt/datadisk0/foodsafety-outreach`（代码 + dist）、`/mnt/datadisk0/logs/foodsafety-outreach`（日志）、`/mnt/datadisk0/pg/foodsafety-outreach`（独立表空间），**系统盘零增量** |
-| 后端端口 | `127.0.0.1:3100`（仅本机监听，由 Caddy 反代） |
-| 数据库 | 独立库 `foodsafety_outreach` + 角色 `foodsafety`，复用同机已有 PostgreSQL 14 实例，不影响其它业务 |
-| 初始管理员 | `admin`，密码在**首次部署**结束时输出一次，登录后台后立即修改 |
+| 域名 | `<YOUR_DOMAIN>`（DNS A 记录指向服务器公网 IP，Caddy 自动 HTTPS） |
+| 整套落盘 | `<DATA_ROOT>/<SYSTEM_NAME>`（代码 + dist）、`<DATA_ROOT>/logs/<SYSTEM_NAME>`（日志）、`<DATA_ROOT>/pg/<SYSTEM_NAME>`（独立表空间），系统盘零增量 |
+| 后端端口 | `127.0.0.1:<API_PORT>`（仅本机监听，由 Caddy 反代） |
+| 数据库 | 独立库 `<DATABASE_NAME>` + 角色 `<DATABASE_USER>`，复用同机已有 PostgreSQL 实例 |
+| 初始管理员 | 由 `SEED_ADMIN_USERNAME` 等部署配置指定，密码在**首次部署**结束时输出一次，登录后台后立即修改 |
 
 部署后拓扑：
 
 ```text
 浏览器 → Caddy(:80/:443, 自动 HTTPS) ─┬─ 静态托管 dist/
-                                      └─ 反代 /api/* → Express(127.0.0.1:3100) → PostgreSQL 14（表空间在数据盘）
+                                      └─ 反代 /api/* → Express(127.0.0.1:<API_PORT>) → PostgreSQL（表空间在数据盘）
 ```
 
 ### 7.3 运维命令
 
 ```bash
-systemctl status foodsafety-outreach-api       # 后端状态
-journalctl -u foodsafety-outreach-api -n 50    # 近期日志
-ls /mnt/datadisk0/logs/foodsafety-outreach     # 落盘日志（app.out.log / app.err.log）
+systemctl status <APP_NAME>-api                # 后端状态
+journalctl -u <APP_NAME>-api -n 50             # 近期日志
+ls <DATA_ROOT>/logs/<SYSTEM_NAME>              # 落盘日志（app.out.log / app.err.log）
 systemctl reload caddy                         # 重载反代配置
-curl http://127.0.0.1:3100/health              # 存活检查
-curl http://127.0.0.1:3100/ready               # 就绪检查（部署验证使用）
+curl http://127.0.0.1:<API_PORT>/health        # 存活检查
+curl http://127.0.0.1:<API_PORT>/ready         # 就绪检查（PostgreSQL + 内容初始化）
 ```
 
-⚠️ **改完源码必须同步到线上**（生产 Caddy 只 serve `dist/`，不读源码），在服务器仓库目录（`/mnt/datadisk0/foodsafety-outreach`）执行：
+⚠️ **改完源码必须同步到线上**（生产 Caddy 只 serve `dist/`，不读源码），在服务器仓库目录（`<APP_ROOT>`，即 `<DATA_ROOT>/<SYSTEM_NAME>`）执行：
 
 ```bash
 git pull && node scripts/build-static.js      # 前端：重建 dist/ 即时生效
-systemctl restart foodsafety-outreach-api     # 后端：重启服务
+systemctl restart <APP_NAME>-api              # 后端：重启服务
 ```
+
+### 7.4 Public Repository 安全说明
+
+本仓库面向 Public 维护，请遵守：
+
+- **禁止提交任何凭据与生产 Secret**：生产环境 `.env`、数据库密码、`JWT_SECRET`、管理员密码、钉钉/Webhook Secret、云平台 AccessKey/SecretKey、SSH 私钥、证书私钥、数据库 dump。
+- **生产部署参数不入库**：真实域名、服务器路径、数据库名/角色等通过服务器本地未入库的适配文件（如 `deploy/deploy.prod.conf`，已被 `.gitignore` 忽略）或环境变量提供。
+- 仓库与文档中出现的 `<YOUR_DOMAIN>`、`<DATA_ROOT>`、`<DATABASE_NAME>`、`<DATABASE_USER>`、`<API_PORT>`、`<APP_ROOT>` 等均为**占位符**，请勿填写真实值后提交。
+- 示例文件（`deploy.example.conf`、`deploy.tencent-cvm.example.conf`、`.env.example`）只包含占位符与非敏感默认值，可以提交。
+- 历史提交中若曾泄露过凭据，删除文件不能消除风险，**必须立即轮换该凭据**。
 
 ---
 
 ## 8. 视觉体系：玻璃化（Glassmorphism）
 
-视觉参考 `Tianjiabing_foodtestlab`，采用五层玻璃结构，实现集中在 `css/glass.css`：
+采用五层玻璃结构，实现集中在 `css/glass.css`：
 
 | 层 | 载体 | 作用 |
 | --- | --- | --- |

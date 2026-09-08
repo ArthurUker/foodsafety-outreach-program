@@ -23,6 +23,17 @@ Thumbs.db
 cypress/screenshots/
 cypress/videos/
 
+# ===== 生产部署私有配置（真实域名/路径/数据库参数，禁止入库）=====
+deploy/deploy.conf
+deploy/deploy.prod.conf
+deploy/deploy.*.local.conf
+
+# ===== 私钥 / 证书 / 数据库转储 =====
+*.pem
+*.key
+*.dump
+*.sql.gz
+
 # 工具缓存（Prisma 引擎二进制、npm 缓存等，体积大且平台相关）
 .cache/
 .npm/

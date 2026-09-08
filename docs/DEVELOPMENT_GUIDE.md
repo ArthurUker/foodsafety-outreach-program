@@ -10,7 +10,7 @@
 
 ```bash
 # 1) 建库
-createdb foodsafety_outreach
+createdb foodsafety_demo
 
 # 2) 配置环境变量
 cp .env.example backend/.env
@@ -216,8 +216,8 @@ npm run seed:content   # 仅重新导入章节内容
 手工：
 
 ```bash
-pg_dump foodsafety_outreach > backup_$(date +%F).sql
-psql -d foodsafety_outreach < backup_YYYY-MM-DD.sql
+pg_dump foodsafety_demo > backup_$(date +%F).sql
+psql -d foodsafety_demo < backup_YYYY-MM-DD.sql
 ```
 
 ---
